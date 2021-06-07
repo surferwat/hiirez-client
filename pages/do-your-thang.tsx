@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
-import { AdjacentStreetViewPanoramaLocations } from 'google-maps-adjacent-panoramas'
+import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPanoramaLocations'
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 
