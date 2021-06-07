@@ -15,22 +15,22 @@ Using the tool, a user could in theory reduce his or her time spent searching fo
 
 ## App flow 
 
-text inputted               autofill address with Google API
-address selected            get geocodes for address
-geocodes obtained           get street view panorama of building at address
-                            get adjacent street view panoramas 
-                            get street map 
-                            get satellite map
-                            show panoramas and maps
-                            prompt user to adjust and/or confirm maps
-view confirmed              get static map images 
-images displayed            allow user to click on images
-image downloaded            end
+| text inputted             | autofill address with Google API                  |
+| address selected          | get geocodes for address                          |
+| geocodes obtained         | get street view panorama of building at address   |
+|                           | get adjacent street view panoramas                |
+|                           | get street map                                    |
+|                           | get satellite map                                 |
+|                           | show panoramas and maps                           |
+|                           | prompt user to adjust and/or confirm maps         |
+| view confirmed            | get static map images                             |
+| images displayed          | allow user to click on images                     |
+| image downloaded          | end                                               |
 
 ## To Do
 
-[ ] Add analytics
-[ ] Improve error handling
+* [ ] Add analytics
+* [ ] Improve error handling
 
 
 ## References

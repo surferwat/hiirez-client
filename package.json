@@ -1,6 +1,6 @@
 {
   "name": "fanddly-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Client app for fanddly",
   "main": "index.js",
   "scripts": {
