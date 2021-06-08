@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga';
 
-const GoogleAnalyticsId = 'G-3RRE7C0WVL';
+const GoogleAnalyticsId = 'UA-199001599-1';
 
 class AnalyticsInternal {
     constructor() {
