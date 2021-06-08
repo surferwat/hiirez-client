@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
+import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 
@@ -66,6 +67,7 @@ function useHandleChange(initial: string): [string, (event: any)=> void] {
 function HomePage() {
   const google = useGoogleMapsApi()
   const router = useRouter()
+  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'mainPanoramaDetails', 'adjacent1PanoramaDetails', 'adjacent2PanoramaDetails', 'mapDetails'])
   const [placeId, setPlaceId] = useState<string | undefined>()
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
@@ -93,6 +95,12 @@ function HomePage() {
   }
  
   useEffect(() => {
+      // Reset and clean up any stored data from previous search
+      removeCookie('placeId')
+      removeCookie('mainPanoramaDetails')
+      removeCookie('adjacent1PanoramaDetails')
+      removeCookie('adjacent2PanoramaDetails')
+      removeCookie('mapDetails')
       setSubscribed({status: false, message: 'not subscribed'})
       setSubscribeError({status: false, message: ''})
   }, [])
