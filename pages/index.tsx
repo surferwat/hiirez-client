@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
+import { Tracker } from '../components/Tracker'
 
 type SubscribeError = {
   status: boolean,
@@ -146,6 +147,7 @@ function HomePage() {
 
   return (
     <div className='mx-auto max-w-4xl'>
+      {Tracker.logPageView('/')}
       <section className='flex h-96 max-w-md mx-auto items-center p-3'>
         <form className="w-full px-3 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
           <div className='relative'>
