@@ -169,7 +169,7 @@ function HomePage() {
             Next
           </button>
           <h2 className='p-3 text-sm bg-yellow-100 rounded-md'>
-            The maximum number of searches is currently limited to 5 per day in order to keep costs 
+            The maximum number of searches is currently limited to 32 per day in order to keep costs 
             within my monthly budget.
           </h2>
         </form>
@@ -203,7 +203,7 @@ function HomePage() {
               <h2 className='pl-3 text-xl text-black font-bold'>Input the location</h2>
             </div>
             <p className='p-3 text-xl text-black'>
-              Type in the address or, in some instances, the name of the subject property. Select a location 
+              Type in the address or the name of the subject property. Select a location 
               from the displayed search results.
             </p>
           </div>
