@@ -1,8 +1,10 @@
 import React from 'react'
+import { Tracker } from '../components/Tracker'
 
 export default () => {
   return (
     <div className='mx-auto max-w-4xl'>
+      {Tracker.logPageView('/privacy-policy')}
       <h1 className='pb-3'>Privacy policy</h1>
       
       <div className='pb-3'>

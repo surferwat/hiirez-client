@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { Tracker } from '../components/Tracker'
 
 type MapDetails = {
   center: google.maps.LatLng,
@@ -178,6 +179,7 @@ function DownloadPage() {
 
   return (
     <div className='w-96 mx-auto'>
+      {Tracker.logPageView('/download-it-yo')}
       <section className='p-3'>
         <h1 className='p-3 text-2xl text-black font-medium'>View from the front side</h1>
         <a href={mainPanoramaUrl} download>

@@ -5,6 +5,7 @@ import { useCookies } from 'react-cookie'
 import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPanoramaLocations'
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
+import { Tracker } from '../components/Tracker'
 
 type AdjacentPanoramaLocations = {
   panosAndPoints: {pano: string, point: google.maps.LatLng}[],
@@ -469,6 +470,7 @@ function AdjustPage(props: Props) {
   if (clientError.status) {
     return (
       <div className='p-3 container mx-auto max-w-md'>
+        {Tracker.logPageView('/do-your-thang')}
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>
         <button 
