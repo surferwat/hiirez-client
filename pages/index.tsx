@@ -239,7 +239,7 @@ function HomePage() {
           to stay up to date with the latest. Thanks!
         </h2>
 
-        <div className='p-3 space-y-3 md:space-x-2 lg:space-x-2 xl:space-x-2'>
+        <div className={`p-3 space-y-3 md:space-x-2 lg:space-x-2 xl:space-x-2 ${subscribed.status ? 'hidden' : 'block'}`}>
           <input
               className={`md:w-80 ${subscribeError.status ? 'border-red-600' : 'border-gray-200'} focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none w-full text-base text-black placeholder-gray-500 border rounded-md py-3 pl-3`}
               placeholder='Email'
@@ -253,6 +253,11 @@ function HomePage() {
           >
               Subscribe
           </button>
+        </div>
+        <div className={`${subscribed.status ? 'block' : 'hidden'}`}>
+          <h2 className='p-3 text-xl text-green-500'>
+            You're now subscribed!
+          </h2> 
         </div>
       </section>
      
