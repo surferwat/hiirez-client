@@ -90,7 +90,7 @@ function removeDomain(url: string): string {
 
 
 function addDomain(url: string): string {
-  return 'https://maps.googleapis.com' + url
+  return 'https://maps.googleapis.com'.concat(url)
 }
 
 
@@ -114,16 +114,16 @@ async function signRequestUrl(
     data: {unsigned_url_stub: unsignedUrlStub}
   }
 
-  
+  let res 
   let signedUrlStub: string = ''
   try {
-    const res = await axios(req)
+    res = await axios(req)
     signedUrlStub = res.data.signed_url_stub
   } catch (e) {
     console.log(e)
     // handle error
   }
-
+  console.log('SIGNED_URL_STUB', signedUrlStub)
   const signedUrl = addDomain(signedUrlStub)
   return signedUrl
 }
