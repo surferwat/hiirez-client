@@ -114,16 +114,16 @@ async function signRequestUrl(
     data: {unsigned_url_stub: unsignedUrlStub}
   }
 
-  let res 
+  
   let signedUrlStub: string = ''
   try {
-    res = await axios(req)
+    const res = await axios(req)
     signedUrlStub = res.data.signed_url_stub
   } catch (e) {
     console.log(e)
     // handle error
   }
-  console.log('SIGNED_URL_STUB', signedUrlStub)
+
   const signedUrl = addDomain(signedUrlStub)
   return signedUrl
 }
