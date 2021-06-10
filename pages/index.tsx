@@ -178,7 +178,7 @@ function HomePage() {
       <section className='p-3 pb-6'>
         <div className='sm:grid sm:grid-cols-2 xl:grid xl:grid-cols-2'>
           <div>
-            <h3 className='px-3 text-xl text-blue-600 font-medium'>Why fanddly</h3>
+            <h3 className='px-3 text-xl text-blue-600 font-medium'>Why hiirez</h3>
             <h1 className='p-3 text-2xl text-black font-medium'>A dedicated tool for real asset professionals</h1>
           </div>
         </div>
@@ -235,7 +235,7 @@ function HomePage() {
         <h3 className='px-3 text-xl text-blue-600 font-medium'>Subscribe</h3>
         <h1 className='p-3 text-2xl text-black font-medium'>Stay in touch</h1>
         <h2 className='p-3 text-xl text-black'>
-          Fanddly is just getting started. Features are in the works, so please subscribe 
+          Hiirez is just getting started. Features are in the works, so please subscribe 
           to stay up to date with the latest. Thanks!
         </h2>
 

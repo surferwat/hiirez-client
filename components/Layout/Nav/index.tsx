@@ -15,10 +15,10 @@ function Nav({onClickInfoButton, href}: NavProps) {
             <div className='flex md:pl-3 lg:pl-3 xl:pl-3'>
                 <Link href={href} passHref>
                     <a className='flex items-center'>
-                        <span className='text-3xl text-black font-bold'>fanddly</span>
+                        <span className='text-3xl text-black font-bold'>hiirez</span>
                     </a>
                 </Link>
-                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.0.13</span>    
+                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.0.14</span>    
             </div>
             {/* <div className='hidden md:block'>
                 <ul className="flex space-x-2">

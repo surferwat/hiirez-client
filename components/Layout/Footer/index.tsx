@@ -9,9 +9,9 @@ const Footer = () => {
         <div className='p-3'>
           <h2 className='text-base text-gray-600 font-medium'>Resources</h2>
           <ul>
-            <li>
-              <a className='text-base text-gray-600 hover:text-gray-900' href={`mailto:email@fanddly.com`}>Email</a>
-            </li>
+            {/* <li>
+              <a className='text-base text-gray-600 hover:text-gray-900' href={`mailto:email@hiirez.com`}>Email</a>
+            </li> */}
             <li>
               <Link href="/privacy-policy" >
                 <a className='text-base text-gray-600 hover:text-gray-900'>Privacy policy</a>
@@ -20,7 +20,7 @@ const Footer = () => {
           </ul>
         </div>
         </div>
-        <aside className='p-3 text-base text-gray-400'>&#9400; 2021 fanddly</aside>
+        <aside className='p-3 text-base text-gray-400'>&#9400; 2021 hiirez</aside>
       </div>
     </footer>
   )
