@@ -85,6 +85,7 @@ async function getMapPosition(
       } 
     })
   } catch (e) {
+    console.log('e',e)
     setClientError({endpoint: e.endpoint, statusCode: e.code, status: true} as ClientError)
   }
   return mapPositionResult
@@ -111,6 +112,8 @@ function initMap(
     mapRef.current as HTMLElement, 
     options
   )
+
+  console.log(mapRef.current)
   
   setMapDetails({ center: options.center, zoom: options.zoom })
   
@@ -337,7 +340,7 @@ async function getAdjacentPanoramaLocations(
     )
     adjacentPanoramas = await adjacentStreetViewPanoramaLocations.getLocations()
   } catch (e) {
-    console.log(e)
+    console.log('error', e)
   }
 
   return adjacentPanoramas

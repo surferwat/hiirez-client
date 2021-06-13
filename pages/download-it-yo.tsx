@@ -182,28 +182,28 @@ function DownloadPage() {
       {Tracker.logPageView('/download-it-yo')}
       <section className='p-3'>
         <h1 className='p-3 text-2xl text-black font-medium'>View from the front side</h1>
-        <a href={mainPanoramaUrl} download>
+        <a href={mainPanoramaUrl} rel='noreferrer' target='_blank' download>
           <img id='main-url' className='h-80 w-full' src={mainPanoramaUrl}/>
         </a>
       </section>
 
       <section className='p-3'>
         <h1 className='p-3 text-2xl text-black font-medium'>View from the left side</h1>
-        <a href={adjacent1PanoramaUrl} download>
+        <a href={adjacent1PanoramaUrl} rel='noreferrer' target='_blank' download>
           <img id='adjacent-1-url' className='h-80 w-full' src={adjacent1PanoramaUrl}/>
         </a>
       </section>
 
       <section className='p-3'>
         <h1 className='p-3 text-2xl text-black font-medium'>View from the right side</h1>
-        <a href={adjacent2PanoramaUrl} download>
+        <a href={adjacent2PanoramaUrl} rel='noreferrer' target='_blank' download>
           <img id='adjacent-2-url' className='h-80 w-full' src={adjacent2PanoramaUrl}/>
         </a>
       </section>
 
       <section className='p-3'>
         <h1 className='p-3 text-2xl text-black font-medium'>Map</h1>
-        <a href={mapUrl} download>
+        <a href={mapUrl} rel='noreferrer' target='_blank' download>
           <img id='map' className='h-80 w-full' src={mapUrl}/>
         </a>
       </section>
