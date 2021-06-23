@@ -168,10 +168,10 @@ function HomePage() {
           >
             Next
           </button>
-          <h2 className='p-3 text-sm bg-yellow-100 rounded-md'>
+          {/* <h2 className='p-3 text-sm bg-yellow-100 rounded-md'>
             The maximum number of searches is currently limited to 32 per day in order to keep costs 
             within my monthly budget.
-          </h2>
+          </h2> */}
         </form>
       </section>
 
