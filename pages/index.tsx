@@ -183,7 +183,7 @@ function HomePage() {
           </div>
         </div>
         <h2 className='p-3 text-xl text-black'>
-          Reduce the time spent searching for images of your subject property by 10x to a matter of minutes, especially
+          Reduce the time spent searching for images of your subject property by 10x to less than a minute, especially
           if all you need is some context at the early stages of buying, selling, or leasing property.
         </h2>
       </section>
