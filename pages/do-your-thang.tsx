@@ -38,12 +38,6 @@ type PanoramaDetails = {
   zoom: number
 }
 
-enum PanoramaOrientation {
-  LeftOf = 'LEFTOF',
-  FrontOf = 'FRONTOF',
-  RightOf = 'RIGHTOF'
-}
-
 type PanoramaPanoResult = {
   pano: string,
   statusCode: google.maps.StreetViewStatus | undefined
@@ -112,8 +106,6 @@ function initMap(
     mapRef.current as HTMLElement, 
     options
   )
-
-  console.log(mapRef.current)
   
   setMapDetails({ center: options.center, zoom: options.zoom })
   
@@ -325,8 +317,8 @@ function addListenerToPanorama(
 async function getAdjacentPanoramaLocations(
   mapCenterPoint: google.maps.LatLng, 
   panoramaPoint: google.maps.LatLng
-): Promise<AdjacentPanoramaLocations> {
-  let adjacentPanoramas: AdjacentPanoramaLocations = { panosAndPoints: [{pano: '', point: {lat: () => 0, lng: () => 0} as google.maps.LatLng}], count: 0 }
+): Promise<(string | null)[]> {
+  let adjacentPanoramas: (string | null)[] = ['']
 
   if (mapCenterPoint == null || panoramaPoint == null) {
     return adjacentPanoramas
@@ -336,7 +328,6 @@ async function getAdjacentPanoramaLocations(
     const adjacentStreetViewPanoramaLocations = new AdjacentStreetViewPanoramaLocations(
       mapCenterPoint,
       panoramaPoint,
-      PanoramaOrientation.FrontOf
     )
     adjacentPanoramas = await adjacentStreetViewPanoramaLocations.getLocations()
   } catch (e) {
@@ -421,9 +412,8 @@ function AdjustPage(props: Props) {
       const panoramaPoint = await getPanoramaPoint(mainPanoramaDetails.pano)
       const adjacentPanoramaLocations = await getAdjacentPanoramaLocations(mapCenterPoint!, panoramaPoint!)  
       
-      if (adjacentPanoramaLocations.panosAndPoints[0]) {
-        if (adjacentPanoramaLocations.panosAndPoints[0].pano != null) {
-          const adjacent1Pano = adjacentPanoramaLocations.panosAndPoints[0].pano
+      if (adjacentPanoramaLocations[0]) {
+          const adjacent1Pano = adjacentPanoramaLocations[0]
           
           const streetViewPanorama = await initPanorama(
             PanoramaType.ADJACENT, 
@@ -434,12 +424,10 @@ function AdjustPage(props: Props) {
           )
           setAdjacent1PanoramaDetails(streetViewPanorama.details)
           addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setAdjacent1PanoramaDetails)
-        }
       }
       
-      if (adjacentPanoramaLocations.panosAndPoints[1]) {
-        if (adjacentPanoramaLocations.panosAndPoints[1].pano != null) {
-          const adjacent2Pano = adjacentPanoramaLocations.panosAndPoints[1].pano
+      if (adjacentPanoramaLocations[1]) {
+          const adjacent2Pano = adjacentPanoramaLocations[1]
           
           const streetViewPanorama = await initPanorama(
             PanoramaType.ADJACENT, 
@@ -450,7 +438,6 @@ function AdjustPage(props: Props) {
           )
           setAdjacent2PanoramaDetails(streetViewPanorama.details)
           addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setAdjacent2PanoramaDetails)
-        }
       }
     }
     init()
