@@ -6,6 +6,7 @@ import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPa
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
+import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
 
 type AdjacentPanoramaLocations = {
   panosAndPoints: {pano: string, point: google.maps.LatLng}[],
@@ -67,7 +68,7 @@ async function getMapPosition(
   }
   try {
     const geocoder = new google.maps.Geocoder()
-    await geocoder.geocode({placeId: placeId}, (results, status) => {
+    await geocoder.geocode({placeId: placeId}, async (results, status) => {
       if (status === 'OK') {
         if (results !== null) {
           if (results[0] !== null) {
@@ -82,6 +83,13 @@ async function getMapPosition(
     console.log('e',e)
     setClientError({endpoint: e.endpoint, statusCode: e.code, status: true} as ClientError)
   }
+
+  try {
+    await GeocodingUsageLimitClient.decrementRemainingRequests()
+  } catch (e) {
+    console.log('e', e)
+  }
+
   return mapPositionResult
 }
 
@@ -464,47 +472,48 @@ function AdjustPage(props: Props) {
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>
         <button 
-          className={`w-full rounded-md py-2 bg-gray-900 text-white text-base font-bold hover:shadow-xl ${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'}`}
+          className={`${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'} w-full rounded-md py-2 bg-gray-900 text-white text-base font-bold hover:shadow-xl`}
           onClick={handleClickNewAddressButton}
         >
           Enter another address
         </button>
       </div>
     )
+  } else {
+    return (
+      <div className='w-96 mx-auto'>
+        {Tracker.logPageView('/do-your-thang')}
+        <section className='p-3'>
+          <h1 className='p-3 text-2xl text-black font-medium'>View from the front</h1>
+          <div id='subject-map' className='h-80' ref={mainPanoramaRef}/>
+        </section>
+        
+        <section className='p-3'>
+          <h1 className='p-3 text-2xl text-black font-medium'>View from the left side</h1>
+          <div id='subject-map' className='h-80' ref={adjacent1Ref}/>
+        </section>
+  
+        <section className='p-3'>
+          <h1 className='p-3 text-2xl text-black font-medium'>View from the right side</h1>
+          <div id='subject-map' className='h-80' ref={adjacent2Ref}/>
+        </section>
+  
+        <section className='p-3'>
+          <h1 className='p-3 text-2xl text-black font-medium'>Map</h1>
+          <div id='map' className='h-80' ref={mapRef}/>
+        </section>
+  
+        <section className='p-3'>
+          <button 
+            className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+            onClick={handleClickNextButton}
+          >
+            Next
+          </button>
+        </section>
+      </div>
+    )
   }
-
-  return (
-    <div className='w-96 mx-auto'>
-      <section className='p-3'>
-        <h1 className='p-3 text-2xl text-black font-medium'>View from the front</h1>
-        <div id='subject-map' className='h-80' ref={mainPanoramaRef}/>
-      </section>
-      
-      <section className='p-3'>
-        <h1 className='p-3 text-2xl text-black font-medium'>View from the left side</h1>
-        <div id='subject-map' className='h-80' ref={adjacent1Ref}/>
-      </section>
-
-      <section className='p-3'>
-        <h1 className='p-3 text-2xl text-black font-medium'>View from the right side</h1>
-        <div id='subject-map' className='h-80' ref={adjacent2Ref}/>
-      </section>
-
-      <section className='p-3'>
-        <h1 className='p-3 text-2xl text-black font-medium'>Map</h1>
-        <div id='map' className='h-80' ref={mapRef}/>
-      </section>
-
-      <section className='p-3'>
-        <button 
-          className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
-          onClick={handleClickNextButton}
-        >
-          Next
-        </button>
-      </section>
-    </div>
-  )
 }
 
 export default AdjustPage

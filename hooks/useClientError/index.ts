@@ -4,11 +4,19 @@ type ClientError = {
     endpoint: string,
     statusCode: string,
     status: boolean,
-    errorTitle: string,
-    errorMessage: string
+    errorTitle?: string,
+    errorMessage?: string,
+    options?: {
+        remainingRequests: number
+    }
 }
 
 type Callback = (error: ClientError) => void
+
+
+
+
+
 
 function useClientError(initial: ClientError | undefined | null): [ClientError, Callback] {
     const [error, setError] = useState(initial || {
@@ -65,12 +73,16 @@ function useClientError(initial: ClientError | undefined | null): [ClientError, 
                         break
                     case 'OVER_QUERY_LIMIT':
                         newErrorTitle = 'Query limit reached'
-                        newErrorMessage = "Sorry, it looks like we've reached the query limit for today. Please try again tomorrow. Thanks!"
+                        newErrorMessage = "Sorry, it looks like we've reached the query limit for today. Please try again anytime after 5 minutes past midnight Pacific Time. Thanks!"
                         setError(prevState => ({
                             ...prevState,
                             errorTitle: newErrorTitle, 
                             errorMessage: newErrorMessage
                         }))
+                        break
+                    case 'ALMOST_OVER_QUERY_LIMIT': // This is not an actuall Google Maps Status Code. We defined it for our purposes.
+                        newErrorTitle = 'Query limit almost reached'
+                        newErrorMessage = `We are close to reaching the query limit for today. ${error.options ? error.options.remainingRequests : 'a few'} sessions currently remaining.`
                         break
                     default: 
                         newErrorTitle = 'Error code not handled yet'

@@ -3,7 +3,17 @@ import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
+import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
+import useClientError from '../hooks/useClientError'
 import { Tracker } from '../components/Tracker'
+
+type ClientError = {
+  endpoint: string,
+  statusCode: string,
+  status: boolean,
+  errorTitle?: string,
+  errorMessage?: string
+}
 
 type SubscribeError = {
   status: boolean,
@@ -66,6 +76,7 @@ function useHandleChange(initial: string): [string, (event: any)=> void] {
 
 
 function HomePage() {
+  const [clientError, setClientError] = useClientError({endpoint: '', statusCode: '', status: false})
   const google = useGoogleMapsApi()
   const router = useRouter()
   const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'mainPanoramaDetails', 'adjacent1PanoramaDetails', 'adjacent2PanoramaDetails', 'mapDetails'])
@@ -73,6 +84,31 @@ function HomePage() {
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
   const [subscribeError, setSubscribeError] = useState<SubscribeError>({status: false, message: ''})
+
+  useEffect(() => {
+    async function checkGeocodingUsage() {
+      const geocodingUsageLimitClient = new GeocodingUsageLimitClient()
+      const status = await geocodingUsageLimitClient.checkRemainingRequests()
+      
+      if (status.isExceeded) {
+        setClientError({
+          endpoint: 'GEOCODER_GEOCODE', 
+          statusCode: 'OVER_QUERY_LIMIT', 
+          status: status.isExceeded,
+        } as ClientError)
+      } else if (status.isAlmostExceeded) {
+        setClientError({
+          endpoint: 'GEOCODER_GEOCODE', 
+          statusCode: 'ALMOST_OVER_QUERY_LIMIT', 
+          status: status.isAlmostExceeded,
+          options: {
+            remainingRequests: status.remainingRequests
+          }
+        } as ClientError)
+      }
+    }
+    checkGeocodingUsage()
+  }, [])
 
   useEffect(() => {
     if (!google) {
@@ -164,14 +200,13 @@ function HomePage() {
           <button 
             className='w-full rounded-md py-3 disabled:opacity-50 bg-gray-900 text-white text-base font-bold hover:shadow-xl z-0'
             onClick={handleClickButton}
-            disabled={placeId == null ? true : false}
+            disabled={placeId == null || (clientError.status && clientError.statusCode == 'OVER_QUERY_LIMIT')}
           >
             Next
           </button>
-          {/* <h2 className='p-3 text-sm bg-yellow-100 rounded-md'>
-            The maximum number of searches is currently limited to 32 per day in order to keep costs 
-            within my monthly budget.
-          </h2> */}
+          <h2 className={`${clientError.status ? 'block' : 'hidden'} p-3 text-sm bg-yellow-100 rounded-md`}>
+            {clientError.errorMessage}
+          </h2>
         </form>
       </section>
 
