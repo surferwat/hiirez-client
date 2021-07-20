@@ -48,10 +48,16 @@ function setAutocompleteFields(autocomplete: google.maps.places.Autocomplete, fi
 
 
 
-function addListenerToAutocomplete(autocomplete: google.maps.places.Autocomplete, setPlaceId: (placeId: string | undefined) => void) {
+function addListenerToAutocomplete(
+  autocomplete: google.maps.places.Autocomplete, 
+  setPlaceId: (placeId: string | undefined) => void,
+  setAddress: (address: string | undefined) => void
+) {
   autocomplete.addListener('place_changed', () => {
     const newPlaceId = autocomplete.getPlace().place_id
     setPlaceId(newPlaceId)
+    const newAddress = autocomplete.getPlace().formatted_address
+    setAddress(newAddress)
   })
 }
 
@@ -79,8 +85,9 @@ function HomePage() {
   const [clientError, setClientError] = useClientError({endpoint: '', statusCode: '', status: false})
   const google = useGoogleMapsApi()
   const router = useRouter()
-  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'mainPanoramaDetails', 'adjacent1PanoramaDetails', 'adjacent2PanoramaDetails', 'mapDetails'])
+  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'address','panoramaConfigs', 'mapConfigs', 'activePanoramaDetails', 'mapCenterPoint'])
   const [placeId, setPlaceId] = useState<string | undefined>()
+  const [address, setAddress] = useState<string | undefined>()
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
   const [subscribeError, setSubscribeError] = useState<SubscribeError>({status: false, message: ''})
@@ -116,8 +123,8 @@ function HomePage() {
     }
     const input = document.getElementById("pac-input") as HTMLInputElement
     const autocomplete = initAutocomplete(input)
-    setAutocompleteFields(autocomplete, ['place_id'])
-    addListenerToAutocomplete(autocomplete, setPlaceId)
+    setAutocompleteFields(autocomplete, ['place_id','formatted_address','geometry'])
+    addListenerToAutocomplete(autocomplete, setPlaceId, setAddress)
   }, [google])
 
   const handleClickButton = (
@@ -125,19 +132,21 @@ function HomePage() {
   ) => {
     event.preventDefault()
     if (placeId == null) {
-      
+      // prompt user to enter address again?
     } else {
-        router.push({pathname: '/do-your-thang', query: {placeId: placeId}})
+        setCookie('address', address)
+        router.push({pathname: '/find-perfect-position', query: {placeId: placeId}})
     }
   }
  
   useEffect(() => {
       // Reset and clean up any stored data from previous search
       removeCookie('placeId')
-      removeCookie('mainPanoramaDetails')
-      removeCookie('adjacent1PanoramaDetails')
-      removeCookie('adjacent2PanoramaDetails')
-      removeCookie('mapDetails')
+      removeCookie('address')
+      removeCookie('panoramaConfigs')
+      removeCookie('mapConfigs')
+      removeCookie('activePanoramaDetails')
+      removeCookie('mapCenterPoint')
       setSubscribed({status: false, message: 'not subscribed'})
       setSubscribeError({status: false, message: ''})
   }, [])
