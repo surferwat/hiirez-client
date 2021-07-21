@@ -186,7 +186,7 @@ function DownloadPage() {
       return
     }
 
-    const img = document.getElementById(event.target.id) as HTMLImageElement // NOTE: I get, Property 'id' does not exist on type 'EventTarget'.
+    const img = document.getElementById((event.target as HTMLImageElement).id) as HTMLImageElement // NOTE: I get, Property 'id' does not exist on type 'EventTarget'.
 
     if (img == null) {
       // NOTE: show error message to user
@@ -199,7 +199,7 @@ function DownloadPage() {
 
     const link = document.createElement('a')
     link.href = imageUrl
-    link.download = event.target.id
+    link.download = (event.target as HTMLImageElement).id
     
     document.body.appendChild(link)
     link.click()
