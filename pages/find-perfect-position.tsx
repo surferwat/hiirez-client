@@ -369,7 +369,7 @@ function AdjustPositionPage(props: Props) {
         {Tracker.logPageView('/find-perfect-position')}
         <h1 className='pt-3 px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
-          <h1 className='text-2xl text-black font-medium'>Find the best point of view and press Next</h1>
+          <h1 className='pb-3 text-2xl text-black font-medium'>Find the best point of view and press Next</h1>
           <ul className='px-4 pb-3 list-disc'>
             <li className='text-base text-black font-medium'>To move around, click on the control arrows</li>
             <li className='text-base text-black font-medium'>To zoom in and out, press the up and down tabs</li>

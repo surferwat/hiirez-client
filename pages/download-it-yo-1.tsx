@@ -241,7 +241,7 @@ function DownloadPage() {
       {Tracker.logPageView('/download-it-yo')}
       <h1 className='pt-3 px-3 text-base'>{address}</h1>
       <section className='px-4 pb-3 min-h-40'>
-        <h1 className='text-2xl text-black font-medium'>Download your images</h1>
+        <h1 className='pb-3 text-2xl text-black font-medium'>Download your images</h1>
         <ul className='px-4 pb-3 list-disc'>
             <li className='text-l text-black font-medium'>To download a single image, directly click it</li>
             <li className='text-l text-black font-medium'>To download all images, click on the button at the bottom</li>

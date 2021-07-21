@@ -227,7 +227,7 @@ async function getAdjacentPanoramaLocations(
 async function getHeading(pano: string, mapCenterPoint: google.maps.LatLng) {
   let heading = 0
   const panoramaPoint = await getPanoramaPoint(pano)
-  console.log(panoramaPoint, mapCenterPoint.lat(),mapCenterPoint.lng())
+  
   if (panoramaPoint != null) {
     heading = google.maps.geometry.spherical.computeHeading(panoramaPoint, mapCenterPoint)
   }
@@ -388,7 +388,7 @@ function AdjustPage() {
         {Tracker.logPageView('/do-your-thang')}
         <h1 className='pt-3  px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
-          <h1 className='text-2xl text-black font-medium'>Make any adjustments and press Next</h1>
+          <h1 className='pb-3 text-2xl text-black font-medium'>Make any adjustments and press Next</h1>
           <ul className='px-4 pb-3 list-disc'>
             <li className='text-l text-black font-medium'>To zoom in and out, press the up and down tabs</li>
             <li className='text-l text-black font-medium'>To change the point of view, touch the screen and pan around</li>
