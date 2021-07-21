@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, MouseEvent } from 'react'
 import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig } from 'axios'
@@ -180,6 +180,50 @@ function DownloadPage() {
     handleMapRequestUrl()
   },[])
 
+  async function handleClickDownloadOne(event: MouseEvent<HTMLImageElement>): Promise<void> {
+    if (event == null || event.target == null) {
+      // NOTE: show error message to user
+      return
+    }
+
+    const img = document.getElementById(event.target.id) as HTMLImageElement // NOTE: I get, Property 'id' does not exist on type 'EventTarget'.
+
+    if (img == null) {
+      // NOTE: show error message to user
+      return
+    }
+
+    const image = await fetch(img.currentSrc)
+    const imageBlob = await image.blob()
+    const imageUrl = URL.createObjectURL(imageBlob)
+
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = event.target.id
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  async function handleClickDownloadAllButton(): Promise<void> {
+    const imgs = document.getElementsByTagName('img') 
+    for(let i = 0; i<imgs.length; i++) {
+      const img = imgs[i]
+      const image = await fetch(img.src)
+      const imageBlob = await image.blob()
+      const imageUrl = URL.createObjectURL(imageBlob)
+      
+      const link = document.createElement('a')
+      link.href = imageUrl
+      link.download = `img-${i}`
+      
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   function handleClickNewAddressButton(): void {
     // Remove all cookies before starting over with a new address
     removeCookie('placeId')
@@ -196,43 +240,24 @@ function DownloadPage() {
     <div className='w-full md:w-3/4 mx-auto'>
       {Tracker.logPageView('/download-it-yo')}
       <h1 className='pt-3 px-3 text-base'>{address}</h1>
-      <section className='p-3 h-32'>
-        <h1 className='text-2xl text-black font-medium'>Click on an image and download it</h1>
+      <section className='px-4 pb-3 min-h-40'>
+        <h1 className='text-2xl text-black font-medium'>Download your images</h1>
+        <ul className='px-4 pb-3 list-disc'>
+            <li className='text-l text-black font-medium'>To download a single image, directly click it</li>
+            <li className='text-l text-black font-medium'>To download all images, click on the button at the bottom</li>
+          </ul>
       </section>
 
       <section className='p-3'>
         <div className='flex flex-wrap justify-center'>
-          <a href={panoramaUrls[0]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[0]}/>
-          </a>
-
-          <a href={panoramaUrls[1]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[1]}/>
-          </a>
-
-          <a href={panoramaUrls[2]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[2]}/>
-          </a>
-
-          <a href={panoramaUrls[3]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[3]}/>
-          </a>
-
-          <a href={panoramaUrls[4]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[4]}/>
-          </a>
-
-          <a href={panoramaUrls[5]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={panoramaUrls[5]}/>
-          </a>
-
-          <a href={mapUrls[0]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={mapUrls[0]}/>
-          </a>
-
-          <a href={mapUrls[1]} rel='noreferrer' target='_blank' download>
-            <img className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' src={mapUrls[1]}/>
-          </a>
+          <img id='img-0' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[0]} onClick={handleClickDownloadOne}/>
+          <img id='img-1' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[1]} onClick={handleClickDownloadOne}/>
+          <img id='img-2' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[2]} onClick={handleClickDownloadOne}/>
+          <img id='img-3' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[3]} onClick={handleClickDownloadOne}/>
+          <img id='img-4' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[4]} onClick={handleClickDownloadOne}/>
+          <img id='img-5' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={panoramaUrls[5]} onClick={handleClickDownloadOne}/>
+          <img id='img-6' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={mapUrls[0]} onClick={handleClickDownloadOne}/>
+          <img id='img-7' className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2 cursor-pointer' src={mapUrls[1]} onClick={handleClickDownloadOne}/>
         </div>
       </section>
 
@@ -242,6 +267,15 @@ function DownloadPage() {
           onClick={handleClickNewAddressButton}
         >
           Enter another address
+        </button>
+      </section>
+
+      <section className='p-3'>
+        <button 
+          className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+          onClick={handleClickDownloadAllButton}
+        >
+          Download all images
         </button>
       </section>
     </div>
