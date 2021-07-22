@@ -371,8 +371,8 @@ function AdjustPage() {
 
   if (clientError.status) {
     return (
-      <div className='p-3 container mx-auto max-w-md'>
-        {Tracker.logPageView('/do-your-thang')}
+      <div className='w-full md:w-3/4 mx-auto'>
+        {Tracker.logPageView('/do-your-thang:error')}
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>
         <button 
