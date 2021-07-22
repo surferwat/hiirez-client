@@ -96,7 +96,7 @@ function HomePage() {
     async function handleSessions() {
       const maxSessionsClient = new MaxSessionsClient()
       const status = await maxSessionsClient.checkRemainingSessions()
-      
+    
       if (status.isExceeded) {
         setClientError({
           endpoint: 'MAX_SESSIONS', 

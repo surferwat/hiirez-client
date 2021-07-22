@@ -206,23 +206,23 @@ function DownloadPage() {
     document.body.removeChild(link)
   }
 
-  async function handleClickDownloadAllButton(): Promise<void> {
-    const imgs = document.getElementsByTagName('img') 
-    for(let i = 0; i<imgs.length; i++) {
-      const img = imgs[i]
-      const image = await fetch(img.src)
-      const imageBlob = await image.blob()
-      const imageUrl = URL.createObjectURL(imageBlob)
+  // async function handleClickDownloadAllButton(): Promise<void> {
+  //   const imgs = document.getElementsByTagName('img') 
+  //   for(let i = 0; i<imgs.length; i++) {
+  //     const img = imgs[i]
+  //     const image = await fetch(img.src)
+  //     const imageBlob = await image.blob()
+  //     const imageUrl = URL.createObjectURL(imageBlob)
       
-      const link = document.createElement('a')
-      link.href = imageUrl
-      link.download = `img-${i}`
+  //     const link = document.createElement('a')
+  //     link.href = imageUrl
+  //     link.download = `img-${i}`
       
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
+  //     document.body.appendChild(link)
+  //     link.click()
+  //     document.body.removeChild(link)
+  //   }
+  // }
 
   function handleClickNewAddressButton(): void {
     // Remove all cookies before starting over with a new address
@@ -236,14 +236,14 @@ function DownloadPage() {
   }
 
   return (
-    <div className='w-full md:w-3/4 mx-auto'>
+    <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
       {Tracker.logPageView('/download-it-yo')}
       <h1 className='pt-3 px-3 text-base'>{address}</h1>
       <section className='p-3 min-h-40'>
         <h1 className='pb-3 text-2xl text-black font-medium'>Download your images</h1>
         <ul className='px-4 pb-3 list-disc'>
-            <li className='text-l text-black font-medium'>To download a single image, directly click it</li>
-            <li className='text-l text-black font-medium'>To download all images, click on the button at the bottom</li>
+            <li className='text-l text-black font-medium'>To download, click on the image</li>
+            {/* <li className='text-l text-black font-medium'>To download all images, click on the button at the bottom</li> */}
           </ul>
       </section>
 
@@ -269,14 +269,14 @@ function DownloadPage() {
         </button>
       </section>
 
-      <section className='p-3'>
+      {/* <section className='p-3'>
         <button 
           className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
           onClick={handleClickDownloadAllButton}
         >
           Download all images
         </button>
-      </section>
+      </section> */}
     </div>
   )
 }

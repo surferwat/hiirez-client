@@ -271,7 +271,6 @@ function AdjustPage() {
     }
 
     async function init() {
-      console.log(mapCenterPoint?.lat())
       // Find adjacent panoramas 
       const activePanoramaPoint = await getPanoramaPoint(activePanoramaDetails.pano)
       const adjacentPanoramaPanos = await getAdjacentPanoramaLocations(mapCenterPoint!, activePanoramaPoint!)  
@@ -385,7 +384,7 @@ function AdjustPage() {
     )
   } else {
     return (
-      <div className='w-full md:w-3/4 mx-auto'>
+      <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
         {Tracker.logPageView('/do-your-thang')}
         <h1 className='pt-3  px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
