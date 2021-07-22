@@ -139,7 +139,7 @@ async function signRequestUrl(
 
 
 function DownloadPage() {
-  const [cookies, setCookie, removeCookie] = useCookies(['panoramaConfigs', 'mapConfigs', 'placeId', 'activePanoramaDetails', 'mapCenterPoint'])
+  const [cookies, setCookie, removeCookie] = useCookies(['panoramaConfigs', 'mapConfigs','activePanoramaDetails', 'mapCenterPoint'])
   const [panoramaConfigs, setPanoramaConfigs] = useState(cookies.panoramaConfigs)
   const [mapConfigs, setMapConfigs] = useState(cookies.mapConfigs)
   const [address, setAddress] = useState(cookies.address || '')
@@ -226,7 +226,6 @@ function DownloadPage() {
 
   function handleClickNewAddressButton(): void {
     // Remove all cookies before starting over with a new address
-    removeCookie('placeId')
     removeCookie('address')
     removeCookie('panoramaConfigs')
     removeCookie('mapConfigs')

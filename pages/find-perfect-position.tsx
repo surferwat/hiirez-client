@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
-import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPanoramaLocations'
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
-import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
 
 type ClientError = {
   endpoint: string,
@@ -14,12 +11,6 @@ type ClientError = {
   status: boolean,
   errorTitle: string,
   errorMessage: string
-}
-
-type MapPositionResult = {
-  location: google.maps.LatLng,
-  locationType: google.maps.GeocoderLocationType | undefined,
-  statusCode: google.maps.GeocoderStatus | undefined
 }
 
 type PanoramaConfig = {
@@ -36,51 +27,6 @@ type PanoramaPanoResult = {
 
 enum PanoramaType {
   ACTIVE, ADJACENT
-}
-
-type Props = {
-  placeId: string
-}
-
-
-
-
-
-
-async function getMapPosition(
-  placeId: string,
-  setClientError: (clientError: ClientError) => void
-): Promise<MapPositionResult> {
-  let mapPositionResult: MapPositionResult = {
-    location: { lat: () => 0, lng: () => 0} as google.maps.LatLng,
-    locationType: undefined,
-    statusCode: undefined
-  }
-  try {
-    const geocoder = new google.maps.Geocoder()
-    await geocoder.geocode({placeId: placeId}, async (results, status) => {
-      if (status === 'OK') {
-        if (results !== null) {
-          if (results[0] !== null) {
-            mapPositionResult.location = results[0].geometry.location
-            mapPositionResult.locationType = results[0].geometry.location_type
-            mapPositionResult.statusCode = status
-          }
-        }
-      } 
-    })
-  } catch (e) {
-    console.log('e',e)
-    setClientError({endpoint: e.endpoint, statusCode: e.code, status: true} as ClientError)
-  }
-
-  try {
-    await GeocodingUsageLimitClient.decrementRemainingRequests()
-  } catch (e) {
-    console.log('e', e)
-  }
-  
-  return mapPositionResult
 }
 
 
@@ -276,34 +222,24 @@ function addListenerToPanorama(
 
 
 
-function AdjustPositionPage(props: Props) {
+function AdjustPositionPage() {
   const [clientError, setClientError] = useClientError(null)
   const router = useRouter()
-  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'activePanoramaDetails', 'mapCenterPoint'])
+  const [cookies, setCookie, removeCookie] = useCookies(['activePanoramaDetails', 'mapCenterPoint'])
   const google = useGoogleMapsApi()
-  const [placeId, setPlaceId] = useState(props.placeId)
   const [address, setAddress] = useState(cookies.address || '')
+  const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng>({lat: () => cookies.mapCenterPoint.lat, lng: () => cookies.mapCenterPoint.lng} as google.maps.LatLng) // hack because cannot store LatLng object cookie
   const activePanoramaRef = useRef<HTMLDivElement>(null)
   const [activePanoramaDetails, setActivePanoramaDetails] = useState<PanoramaConfig>(cookies.activePanoramaDetails || {pano: '', heading: 0, pitch: 0, zoom: 0})
-  const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng>()
 
   useEffect(() => {
     if (!google) {
       return
     }
-
+    console.log(mapCenterPoint.lat())
     async function init() {
-      
-      // Get map position using place id
-      const mapPositionResult = await getMapPosition(placeId, setClientError)
-      
-      if (mapPositionResult.statusCode != 'OK') {
-        return
-      }
-      const newMapCenterPoint = mapPositionResult.location
-      
       // Get panorama position
-      const panoramaPanoResult = await getPanoramaPano(newMapCenterPoint!, setClientError)
+      const panoramaPanoResult = await getPanoramaPano(mapCenterPoint!, setClientError)
       
       if (panoramaPanoResult.statusCode != 'OK') {
         return
@@ -322,7 +258,7 @@ function AdjustPositionPage(props: Props) {
         PanoramaType.ACTIVE, 
         activePanoramaRef,
         panoramaPano,
-        newMapCenterPoint,
+        mapCenterPoint,
         newPanoramaPoint,
         activePanoramaDetails
       )
@@ -332,16 +268,12 @@ function AdjustPositionPage(props: Props) {
 
       // Update state
       setActivePanoramaDetails(streetViewPanorama.details)
-      setMapCenterPoint(newMapCenterPoint)
     }
     init()
   }, [google])
 
   function handleClickNextButton(): void {
-    setCookie('placeId', placeId)
     setCookie('activePanoramaDetails', activePanoramaDetails)
-    setCookie('mapCenterPoint', mapCenterPoint)
-
     router.push({pathname: '/do-your-thang-1'})
   }
 
@@ -395,18 +327,3 @@ function AdjustPositionPage(props: Props) {
 }
 
 export default AdjustPositionPage
-
-
-
-
-
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const placeId = context.query.placeId
-  
-  return {
-    props: {
-      placeId: placeId
-    }
-  }
-}

@@ -272,6 +272,7 @@ function AdjustPage() {
     }
 
     async function init() {
+      console.log(mapCenterPoint?.lat())
       // Find adjacent panoramas 
       const activePanoramaPoint = await getPanoramaPoint(activePanoramaDetails.pano)
       const adjacentPanoramaPanos = await getAdjacentPanoramaLocations(mapCenterPoint!, activePanoramaPoint!)  

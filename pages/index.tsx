@@ -50,14 +50,14 @@ function setAutocompleteFields(autocomplete: google.maps.places.Autocomplete, fi
 
 function addListenerToAutocomplete(
   autocomplete: google.maps.places.Autocomplete, 
-  setPlaceId: (placeId: string | undefined) => void,
-  setAddress: (address: string | undefined) => void
+  setAddress: (address: string | undefined) => void,
+  setMapCenterPoint: (mapCenterPoint: google.maps.LatLng) => void
 ) {
   autocomplete.addListener('place_changed', () => {
-    const newPlaceId = autocomplete.getPlace().place_id
-    setPlaceId(newPlaceId)
     const newAddress = autocomplete.getPlace().formatted_address
     setAddress(newAddress)
+    const newMapCenterPoint = autocomplete.getPlace().geometry?.location
+    setMapCenterPoint(newMapCenterPoint)
   })
 }
 
@@ -85,8 +85,8 @@ function HomePage() {
   const [clientError, setClientError] = useClientError({endpoint: '', statusCode: '', status: false})
   const google = useGoogleMapsApi()
   const router = useRouter()
-  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'address','panoramaConfigs', 'mapConfigs', 'activePanoramaDetails', 'mapCenterPoint'])
-  const [placeId, setPlaceId] = useState<string | undefined>()
+  const [cookies, setCookie, removeCookie] = useCookies(['address','panoramaConfigs', 'mapConfigs', 'activePanoramaDetails', 'mapCenterPoint'])
+  const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng | undefined>()
   const [address, setAddress] = useState<string | undefined>()
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
@@ -124,29 +124,29 @@ function HomePage() {
     const input = document.getElementById("pac-input") as HTMLInputElement
     const autocomplete = initAutocomplete(input)
     setAutocompleteFields(autocomplete, ['place_id','formatted_address','geometry'])
-    addListenerToAutocomplete(autocomplete, setPlaceId, setAddress)
+    addListenerToAutocomplete(autocomplete, setAddress, setMapCenterPoint)
   }, [google])
 
   const handleClickButton = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent<HTMLButtonElement>
   ) => {
     event.preventDefault()
-    if (placeId == null) {
+    if (mapCenterPoint == null) {
       // prompt user to enter address again?
     } else {
+        setCookie('mapCenterPoint', mapCenterPoint)
         setCookie('address', address)
-        router.push({pathname: '/find-perfect-position', query: {placeId: placeId}})
+        router.push({pathname: '/find-perfect-position'})
     }
   }
  
   useEffect(() => {
       // Reset and clean up any stored data from previous search
-      removeCookie('placeId')
+      removeCookie('mapCenterPoint')
       removeCookie('address')
       removeCookie('panoramaConfigs')
       removeCookie('mapConfigs')
       removeCookie('activePanoramaDetails')
-      removeCookie('mapCenterPoint')
       setSubscribed({status: false, message: 'not subscribed'})
       setSubscribeError({status: false, message: ''})
   }, [])
@@ -209,7 +209,7 @@ function HomePage() {
           <button 
             className='w-full rounded-md py-3 disabled:opacity-50 bg-gray-900 text-white text-base font-bold hover:shadow-xl z-0'
             onClick={handleClickButton}
-            disabled={placeId == null || (clientError.status && clientError.statusCode == 'OVER_QUERY_LIMIT')}
+            disabled={mapCenterPoint == null || (clientError.status && clientError.statusCode == 'OVER_QUERY_LIMIT')}
           >
             Next
           </button>
