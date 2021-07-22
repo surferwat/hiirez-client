@@ -56,7 +56,7 @@ function addListenerToAutocomplete(
   autocomplete.addListener('place_changed', () => {
     const newAddress = autocomplete.getPlace().formatted_address
     setAddress(newAddress)
-    const newMapCenterPoint = autocomplete.getPlace().geometry?.location
+    const newMapCenterPoint = autocomplete.getPlace().geometry?.location! // HACK: added _!_ operator to make work.
     setMapCenterPoint(newMapCenterPoint)
   })
 }
