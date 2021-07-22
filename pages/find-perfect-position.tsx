@@ -245,7 +245,7 @@ function AdjustPositionPage() {
     }
     handleSessions()
   }, [])
-  
+
   useEffect(() => {
     if (!google) {
       return
@@ -288,7 +288,7 @@ function AdjustPositionPage() {
 
   function handleClickNextButton(): void {
     setCookie('activePanoramaDetails', activePanoramaDetails)
-    router.push({pathname: '/do-your-thang-1'})
+    router.push({pathname: '/do-your-thang'})
   }
 
   function handleClickNewAddressButton(): void {

@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPanoramaLocations'
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
-import { MaxSessionsClient } from '../lib/MaxSessionsClient'
-
-type AdjacentPanoramaLocations = {
-  panosAndPoints: {pano: string, point: google.maps.LatLng}[],
-  count: number
-}
 
 type ClientError = {
   endpoint: string,
@@ -21,76 +14,20 @@ type ClientError = {
   errorMessage: string
 }
 
-type MapDetails = {
-  center: { lat: number, lng: number } | undefined,
-  zoom: number | undefined,
-}
-
-type MapPositionResult = {
-  location: google.maps.LatLng,
-  locationType: google.maps.GeocoderLocationType | undefined,
-  statusCode: google.maps.GeocoderStatus | undefined
-}
-
-type PanoramaDetails = {
+type PanoramaConfig = {
   pano: string,
   heading:number,
   pitch: number,
   zoom: number
 }
 
-type PanoramaPanoResult = {
-  pano: string,
-  statusCode: google.maps.StreetViewStatus | undefined
-}
-
-enum PanoramaType {
-  MAIN, ADJACENT
-}
-
-type Props = {
-  placeId: string
-}
-
-
-
-
-
-
-async function getMapPosition(
-  placeId: string,
-  setClientError: (clientError: ClientError) => void
-): Promise<MapPositionResult> {
-  let mapPositionResult: MapPositionResult = {
-    location: { lat: () => 0, lng: () => 0} as google.maps.LatLng,
-    locationType: undefined,
-    statusCode: undefined
-  }
-  try {
-    const geocoder = new google.maps.Geocoder()
-    await geocoder.geocode({placeId: placeId}, async (results, status) => {
-      if (status === 'OK') {
-        if (results !== null) {
-          if (results[0] !== null) {
-            mapPositionResult.location = results[0].geometry.location
-            mapPositionResult.locationType = results[0].geometry.location_type
-            mapPositionResult.statusCode = status
-          }
-        }
-      } 
-    })
-  } catch (e) {
-    console.log('e',e)
-    setClientError({endpoint: e.endpoint, statusCode: e.code, status: true} as ClientError)
-  }
-
-  try {
-    await MaxSessionsClient.decrementRemainingSessions()
-  } catch (e) {
-    console.log('e', e)
-  }
-
-  return mapPositionResult
+type MapConfig = {
+  center: { lat: number, lng: number },
+  zoom: number,
+  fullscreenControl: boolean,
+  mapTypeControl: boolean,
+  streetViewControl: boolean,
+  mapTypeId?: string
 }
 
 
@@ -100,32 +37,38 @@ async function getMapPosition(
 
 function initMap(
   mapRef: React.RefObject<HTMLDivElement>, 
-  mapPosition: MapPositionResult,
-  setMapDetails: (details: MapDetails) => any,
+  mapConfig: MapConfig
 ): google.maps.Map { 
-  const options = {
-    center: { lat: mapPosition.location.lat(), lng: mapPosition.location.lng() },
-    zoom: 17,
-    fullscreenControl: false,
-    mapTypeControl: false,
-    streetViewControl: false
-  }
   const map = new google.maps.Map(
     mapRef.current as HTMLElement, 
-    options
+    mapConfig
   )
-  
-  setMapDetails({ center: options.center, zoom: options.zoom })
-  
+  return map
+}
+
+
+
+
+
+
+function addListenerToMap(
+  map: google.maps.Map,
+  setMapConfigs: (configs: any) => any,
+  index: number
+) {
   map.addListener('center_changed', processCenterChanged) 
 
   function processCenterChanged(): void {
     const newCenter = map.getCenter()?.toJSON()
     const newZoom = map.getZoom()
-    setMapDetails({ center: newCenter, zoom: newZoom })
+    setMapConfigs((prevConfigs: PanoramaConfig[]) => {
+      return prevConfigs.map((config,i) => {
+      if (i === index) {
+        return { center: newCenter, zoom: newZoom }
+      }
+      return config
+    })})
   }
-  
-  return map
 }
 
 
@@ -171,112 +114,29 @@ async function getPanoramaPoint(
 
 
 
-async function getPanoramaPano(
-  mapCenterPoint: google.maps.LatLng,
-  setClientError: (clientError: ClientError) => void
-): Promise<PanoramaPanoResult> {
-  let panoramaPanoResult: PanoramaPanoResult = { pano: '', statusCode: undefined}
-
-  const streetViewService = new google.maps.StreetViewService()
-  const request = {
-    location: { lat: mapCenterPoint.lat(), lng: mapCenterPoint.lng() },
-    radius: 100,
-    source: google.maps.StreetViewSource.OUTDOOR
-  }
-
-  try {
-    await streetViewService.getPanorama(request, processSVData)
-  } catch (e) {
-    setClientError({endpoint: e.endpoint, statusCode: e.code, status: true} as ClientError)
-    console.log('error', e)
-  }
-  
-  async function processSVData(
-    data: google.maps.StreetViewPanoramaData | null,
-    status: google.maps.StreetViewStatus
-  ): Promise<void> {
-    if (status === 'OK') {
-      const location = (data as google.maps.StreetViewPanoramaData).location as google.maps.StreetViewLocation
-      
-      if (location == null) {
-        return
-      }
-
-      panoramaPanoResult.pano = location.pano
-      panoramaPanoResult.statusCode = status
-    }
-  }
-
-  return panoramaPanoResult
-}
-
-
-
-
-
-
 async function initPanorama(
-  panoramaType: PanoramaType, 
-  panoramaRef: React.RefObject<HTMLDivElement>, 
-  panoramaPano: string,
-  mapCenterPoint: google.maps.LatLng | undefined,
-  panoramaDetails: PanoramaDetails
+  panoramaRef: React.RefObject<HTMLDivElement>,
+  panoramaConfig: PanoramaConfig,
  ) {
-  let streetViewPanorama = {
-    panorama: {} as google.maps.StreetViewPanorama,
-    details: {
-      pano: '',
-      heading: 0,
-      pitch: 0,
-      zoom: 0
-    }
-  }
-
-  let pano = panoramaPano
-  let heading = 0 
-  let pitch = 0 
-  let zoom = 0
-
-  if (panoramaDetails == null || panoramaDetails.pano == '') {
-    const panoramaPoint = await getPanoramaPoint(pano)
-    if (panoramaPoint == null || mapCenterPoint == null) {
-      return streetViewPanorama
-      // throw error
-    }
-    heading = google.maps.geometry.spherical.computeHeading(panoramaPoint, mapCenterPoint)
-    pitch = 0
-    zoom = 0.8 
-  } else {
-    heading = panoramaDetails.heading 
-    pitch = panoramaDetails.pitch 
-    zoom = panoramaDetails.zoom
-  }
-  
   const panorama = new google.maps.StreetViewPanorama(
     panoramaRef.current as HTMLElement,
     {
-      pano: pano,
+      pano: panoramaConfig.pano,
       pov: {
-        heading: heading,
-        pitch: pitch
+        heading: panoramaConfig.heading,
+        pitch: panoramaConfig.pitch
       },
-      zoom: zoom,
+      zoom: panoramaConfig.zoom,
       motionTracking: false,
       motionTrackingControl: false,
       fullscreenControl: false,
       panControl: false,
       addressControl: false,
-      linksControl: panoramaType == PanoramaType.ADJACENT ? false : true,
+      linksControl: false,
+      imageDateControl: true
     }
   )
-
-  streetViewPanorama.panorama = panorama
-  streetViewPanorama.details.pano = pano
-  streetViewPanorama.details.heading = heading
-  streetViewPanorama.details.pitch = pitch
-  streetViewPanorama.details.zoom = zoom
-
-  return streetViewPanorama
+  return panorama
 }
 
 
@@ -287,7 +147,8 @@ async function initPanorama(
 function addListenerToPanorama(
   eventType: string, 
   panorama: google.maps.StreetViewPanorama,
-  setPanoramaDetails: (details: PanoramaDetails) => any,
+  setPanoramaConfigs: (configs: any) => any,
+  index: number
 ) {
   switch(eventType) {
     case 'pano_changed': 
@@ -304,7 +165,13 @@ function addListenerToPanorama(
     const newHeading = panorama.getPov().heading
     const newPitch = panorama.getPov().pitch
     const newZoom = panorama.getZoom()
-    setPanoramaDetails({ pano: newPano, heading: newHeading, pitch: newPitch, zoom: newZoom })
+    setPanoramaConfigs((prevConfigs: PanoramaConfig[]) => {
+      return prevConfigs.map((config,i) => {
+      if (i === index) {
+        return { pano: newPano, heading: newHeading, pitch: newPitch, zoom: newZoom }
+      }
+      return config
+    })})
   }
 
   // Callback function to listen for pov changes
@@ -313,7 +180,13 @@ function addListenerToPanorama(
     const newHeading = panorama.getPov().heading
     const newPitch = panorama.getPov().pitch
     const newZoom = panorama.getZoom()
-    setPanoramaDetails({ pano: newPano, heading: newHeading, pitch: newPitch, zoom: newZoom })
+    setPanoramaConfigs((prevConfigs: PanoramaConfig[]) => {
+      return prevConfigs.map((config,i) => {
+      if (i === index) {
+        return { pano: newPano, heading: newHeading, pitch: newPitch, zoom: newZoom }
+      }
+      return config
+    })})
   }
 }
 
@@ -350,21 +223,47 @@ async function getAdjacentPanoramaLocations(
 
 
 
-function AdjustPage(props: Props) {
+async function getHeading(pano: string, mapCenterPoint: google.maps.LatLng) {
+  let heading = 0
+  const panoramaPoint = await getPanoramaPoint(pano)
+  
+  if (panoramaPoint != null) {
+    heading = google.maps.geometry.spherical.computeHeading(panoramaPoint, mapCenterPoint)
+  }
+  return heading
+}
+
+
+
+
+
+
+function initRefs(numRefs: number) {
+  let refs = []
+  for (let i = 0; i < numRefs; i++) {
+    const ref = useRef<HTMLDivElement>(null)
+    refs.push(ref)
+  }
+  return refs
+}
+
+
+
+
+
+
+function AdjustPage() {
   const [clientError, setClientError] = useClientError(null)
   const router = useRouter()
-  const [cookies, setCookie, removeCookie] = useCookies(['placeId', 'mainPanoramaDetails', 'adjacent1PanoramaDetails', 'adjacent2PanoramaDetails', 'mapDetails'])
+  const [cookies, setCookie, removeCookie] = useCookies(['activePanoramaDetails', 'panoramaConfigs', 'mapConfigs', 'mapCenterPoint'])
   const google = useGoogleMapsApi()
-  const [placeId, setPlaceId] = useState(props.placeId)
-  const mainPanoramaRef = useRef<HTMLDivElement>(null)
-  const adjacent1Ref = useRef<HTMLDivElement>(null)
-  const adjacent2Ref = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng | undefined>()
-  const [mainPanoramaDetails, setMainPanoramaDetails] = useState<PanoramaDetails>(cookies.mainPanoramaDetails || {pano: '', heading: 0, pitch: 0, zoom: 0})
-  const [adjacent1PanoramaDetails, setAdjacent1PanoramaDetails] = useState<PanoramaDetails>(cookies.adjacent1PanoramaDetails)
-  const [adjacent2PanoramaDetails, setAdjacent2PanoramaDetails] = useState<PanoramaDetails>(cookies.adjacent2PanoramaDetails)
-  const [mapDetails, setMapDetails] = useState<MapDetails>(cookies.mapDetails)
+  const [address, setAddress] = useState(cookies.address || '')
+  const panoramaRefs = initRefs(6)
+  const mapRefs = initRefs(2)
+  const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng | undefined>({lat: () => cookies.mapCenterPoint.lat, lng: () => cookies.mapCenterPoint.lng} as google.maps.LatLng) // hack because cannot store LatLng object cookie
+  const [activePanoramaDetails, setActivePanoramaDetails] = useState<PanoramaConfig>(cookies.activePanoramaDetails || {pano: '', heading: 0, pitch: 0, zoom: 0})
+  const [panoramaConfigs, setPanoramaConfigs] = useState<PanoramaConfig[]>(cookies.panoramaConfigs)
+  const [mapConfigs, setMapConfigs] = useState<MapConfig[]>(cookies.mapConfigs)
 
   useEffect(() => {
     if (!google) {
@@ -372,91 +271,96 @@ function AdjustPage(props: Props) {
     }
 
     async function init() {
+      console.log(mapCenterPoint?.lat())
+      // Find adjacent panoramas 
+      const activePanoramaPoint = await getPanoramaPoint(activePanoramaDetails.pano)
+      const adjacentPanoramaPanos = await getAdjacentPanoramaLocations(mapCenterPoint!, activePanoramaPoint!)  
       
-      // Get map position using place id
-      const mapPositionResult = await getMapPosition(placeId, setClientError)
-      
-      if (mapPositionResult.statusCode != 'OK') {
-        return
+      // Set up list of panorams to be configured
+      const panos = [activePanoramaDetails.pano]
+      for (let i = 0; i < adjacentPanoramaPanos.length; i++) {
+          panos.push(adjacentPanoramaPanos[i]!)
+      }
+      let newPanoramaConfigs = [] // in total 6 panoramas should be configured
+
+      // Configure user adjusted panoramas
+      const userOptions = {
+        pitch: activePanoramaDetails.pitch,
+        zoom: activePanoramaDetails.zoom
       }
 
-      const newMapCenterPoint = mapPositionResult.location
+      for (let i = 0; i < panos.length; i++) {
+        const config = {
+          pano: panos[i],
+          heading: await getHeading(panos[i], mapCenterPoint!),
+          pitch: userOptions.pitch,
+          zoom: userOptions.zoom
+        }
+        newPanoramaConfigs.push(config)
+      }
       
-      const panoramaPanoResult = await getPanoramaPano(newMapCenterPoint!, setClientError)
-      
-      if (panoramaPanoResult.statusCode != 'OK') {
-        return
+      // Configure as is panoramas
+      const asIsOptions = {
+        pitch: 0,
+        zoom: 0.8
       }
 
-      const panoramaPano = panoramaPanoResult.pano
-      const streetViewPanorama = await initPanorama(
-        PanoramaType.MAIN, 
-        mainPanoramaRef,
-        panoramaPano,
-        newMapCenterPoint,
-        mainPanoramaDetails
-      )
+      for (let i = 0; i < panos.length; i++) {
+        const config: PanoramaConfig = {
+          pano: panos[i],
+          heading: newPanoramaConfigs[i].heading,
+          pitch: asIsOptions.pitch,
+          zoom: asIsOptions.zoom
+        }
+        newPanoramaConfigs.push(config)
+      }
 
-      addListenerToPanorama('pano_changed', streetViewPanorama.panorama, setMainPanoramaDetails)
-      addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setMainPanoramaDetails)
+      // Store state of configs
+      setPanoramaConfigs(newPanoramaConfigs)
+      
+      // Initialize panoramas
+      let panoramas = []
+      for (let i = 0; i < newPanoramaConfigs.length; i++) {
+        const panorama = await initPanorama(
+          panoramaRefs[i],
+          newPanoramaConfigs[i]
+        )
+        addListenerToPanorama('pano_changed', panorama, setPanoramaConfigs, i)
+        addListenerToPanorama('pov_changed', panorama, setPanoramaConfigs, i)
+        panoramas.push(panorama)
+      }
 
-      // Initialize map 
-      initMap(mapRef, mapPositionResult, setMapDetails)
+      // Configure as is maps
+      const asIsOptionsMaps = {
+        center: { lat: mapCenterPoint!.lat(), lng: mapCenterPoint!.lng() },
+        zoom: 17,
+        fullscreenControl: false,
+        mapTypeControl: false,
+        streetViewControl: false,
+        rotateControl: false
+      }
 
-      // Update state
-      setMapCenterPoint(newMapCenterPoint)
-      setMainPanoramaDetails(streetViewPanorama.details)
+      let newMapConfigs = []
+      newMapConfigs.push(asIsOptionsMaps)
+      newMapConfigs.push({...asIsOptionsMaps, mapTypeId: 'satellite'})
+
+      // Store state of configs
+      setMapConfigs(newMapConfigs)
+
+      // Initialize maps
+      const mapRoad = initMap(mapRefs[0], newMapConfigs[0])
+      addListenerToMap(mapRoad, setMapConfigs, 0)
+      const mapSatellite = initMap(mapRefs[1], newMapConfigs[1])
+      addListenerToMap(mapSatellite, setMapConfigs, 1)
+
     }
     init()
   }, [google])
 
-  useEffect(() => {
-    if (!google) {
-      return
-    }
-    
-    async function init() {
-      // Initialize and configure adjacent panoramas 
-      const panoramaPoint = await getPanoramaPoint(mainPanoramaDetails.pano)
-      const adjacentPanoramaLocations = await getAdjacentPanoramaLocations(mapCenterPoint!, panoramaPoint!)  
-      
-      if (adjacentPanoramaLocations[0]) {
-          const adjacent1Pano = adjacentPanoramaLocations[0]
-          
-          const streetViewPanorama = await initPanorama(
-            PanoramaType.ADJACENT, 
-            adjacent1Ref,
-            adjacent1Pano, 
-            mapCenterPoint,
-            adjacent1PanoramaDetails
-          )
-          setAdjacent1PanoramaDetails(streetViewPanorama.details)
-          addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setAdjacent1PanoramaDetails)
-      }
-      
-      if (adjacentPanoramaLocations[1]) {
-          const adjacent2Pano = adjacentPanoramaLocations[1]
-          
-          const streetViewPanorama = await initPanorama(
-            PanoramaType.ADJACENT, 
-            adjacent2Ref,
-            adjacent2Pano, 
-            mapCenterPoint,
-            adjacent2PanoramaDetails
-          )
-          setAdjacent2PanoramaDetails(streetViewPanorama.details)
-          addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setAdjacent2PanoramaDetails)
-      }
-    }
-    init()
-  }, [mainPanoramaDetails.pano])
-
   function handleClickNextButton(): void {
-    setCookie('placeId', placeId)
-    setCookie('mainPanoramaDetails', mainPanoramaDetails)
-    setCookie('adjacent1PanoramaDetails', adjacent1PanoramaDetails)
-    setCookie('adjacent2PanoramaDetails', adjacent2PanoramaDetails)
-    setCookie('mapDetails', mapDetails)
+    setCookie('activePanoramaDetails', activePanoramaDetails)
+    setCookie('panoramaConfigs', panoramaConfigs)
+    setCookie('mapConfigs', mapConfigs)
 
     router.push({pathname: '/download-it-yo'})
   }
@@ -481,26 +385,30 @@ function AdjustPage(props: Props) {
     )
   } else {
     return (
-      <div className='w-96 mx-auto'>
+      <div className='w-full md:w-3/4 mx-auto'>
         {Tracker.logPageView('/do-your-thang')}
-        <section className='p-3'>
-          <h1 className='p-3 text-2xl text-black font-medium'>View from the front</h1>
-          <div id='subject-map' className='h-80' ref={mainPanoramaRef}/>
+        <h1 className='pt-3  px-3 text-base'>{address}</h1>
+        <section className='p-3 min-h-40'>
+          <h1 className='pb-3 text-2xl text-black font-medium'>Make any adjustments and press Next</h1>
+          <ul className='px-4 pb-3 list-disc'>
+            <li className='text-l text-black font-medium'>To zoom in and out, press the up and down tabs</li>
+            <li className='text-l text-black font-medium'>To change the point of view, touch the screen and pan around</li>
+          </ul>
         </section>
-        
+
         <section className='p-3'>
-          <h1 className='p-3 text-2xl text-black font-medium'>View from the left side</h1>
-          <div id='subject-map' className='h-80' ref={adjacent1Ref}/>
-        </section>
-  
-        <section className='p-3'>
-          <h1 className='p-3 text-2xl text-black font-medium'>View from the right side</h1>
-          <div id='subject-map' className='h-80' ref={adjacent2Ref}/>
-        </section>
-  
-        <section className='p-3'>
-          <h1 className='p-3 text-2xl text-black font-medium'>Map</h1>
-          <div id='map' className='h-80' ref={mapRef}/>
+          <div className='flex flex-wrap justify-center'>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[0]}/>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[1]}/>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[2]}/>
+          
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[3]}/>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[4]}/>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={panoramaRefs[5]}/>
+
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={mapRefs[0]}/>
+            <div className='w-full md:w-80 lg:w-96 h-80 lg:h-96 my-2 sm:m-2 md:m-2' ref={mapRefs[1]}/>
+          </div>
         </section>
   
         <section className='p-3'>
@@ -517,18 +425,3 @@ function AdjustPage(props: Props) {
 }
 
 export default AdjustPage
-
-
-
-
-
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const placeId = context.query.placeId
-  
-  return {
-    props: {
-      placeId: placeId
-    }
-  }
-}
