@@ -5,7 +5,6 @@ import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPa
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
-import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
 
 type ClientError = {
   endpoint: string,

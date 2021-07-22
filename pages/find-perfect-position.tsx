@@ -4,6 +4,7 @@ import { useCookies } from 'react-cookie'
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
+import { MaxSessionsClient } from '../lib/MaxSessionsClient'
 
 type ClientError = {
   endpoint: string,
@@ -233,10 +234,23 @@ function AdjustPositionPage() {
   const [activePanoramaDetails, setActivePanoramaDetails] = useState<PanoramaConfig>(cookies.activePanoramaDetails || {pano: '', heading: 0, pitch: 0, zoom: 0})
 
   useEffect(() => {
+    // We count each page load as the start of a new session for the purposes
+    // of managing API usage costs
+    async function handleSessions() {
+      try {
+        await MaxSessionsClient.decrementRemainingSessions()
+      } catch (e) {
+        console.log('e', e)
+      }
+    }
+    handleSessions()
+  }, [])
+  
+  useEffect(() => {
     if (!google) {
       return
     }
-    console.log(mapCenterPoint.lat())
+    
     async function init() {
       // Get panorama position
       const panoramaPanoResult = await getPanoramaPano(mapCenterPoint!, setClientError)

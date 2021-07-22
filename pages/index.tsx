@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
-import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
+import { MaxSessionsClient } from '../lib/MaxSessionsClient'
 import useClientError from '../hooks/useClientError'
 import { Tracker } from '../components/Tracker'
 
@@ -93,28 +93,28 @@ function HomePage() {
   const [subscribeError, setSubscribeError] = useState<SubscribeError>({status: false, message: ''})
 
   useEffect(() => {
-    async function checkGeocodingUsage() {
-      const geocodingUsageLimitClient = new GeocodingUsageLimitClient()
-      const status = await geocodingUsageLimitClient.checkRemainingRequests()
+    async function handleSessions() {
+      const maxSessionsClient = new MaxSessionsClient()
+      const status = await maxSessionsClient.checkRemainingSessions()
       
       if (status.isExceeded) {
         setClientError({
-          endpoint: 'GEOCODER_GEOCODE', 
-          statusCode: 'OVER_QUERY_LIMIT', 
+          endpoint: 'MAX_SESSIONS', 
+          statusCode: 'OVER_SESSIONS_LIMIT', 
           status: status.isExceeded,
         } as ClientError)
       } else if (status.isAlmostExceeded) {
         setClientError({
-          endpoint: 'GEOCODER_GEOCODE', 
-          statusCode: 'ALMOST_OVER_QUERY_LIMIT', 
+          endpoint: 'MAX_SESSIONS', 
+          statusCode: 'ALMOST_OVER_SESSIONS_LIMIT', 
           status: status.isAlmostExceeded,
           options: {
-            remainingRequests: status.remainingRequests
+            remainingSessions: status.remainingSessions
           }
         } as ClientError)
       }
     }
-    checkGeocodingUsage()
+    handleSessions()
   }, [])
 
   useEffect(() => {

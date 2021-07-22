@@ -7,7 +7,7 @@ type ClientError = {
     errorTitle?: string,
     errorMessage?: string,
     options?: {
-        remainingRequests: number
+        remainingSessions: number
     }
 }
 
@@ -80,9 +80,30 @@ function useClientError(initial: ClientError | undefined | null): [ClientError, 
                             errorMessage: newErrorMessage
                         }))
                         break
-                    case 'ALMOST_OVER_QUERY_LIMIT': // This is not an actuall Google Maps Status Code. We defined it for our purposes.
-                        newErrorTitle = 'Query limit almost reached'
-                        newErrorMessage = `We are close to reaching the query limit for today. ${error.options ? error.options.remainingRequests : 'a few'} sessions currently remaining.`
+                    default: 
+                        newErrorTitle = 'Error code not handled yet'
+                        newErrorMessage = "Sorry, something went wrong. Please send us an email describing what happened. Thanks!"
+                        setError(prevState => ({
+                            ...prevState,
+                            errorTitle: newErrorTitle, 
+                            errorMessage: newErrorMessage
+                        }))
+                }
+                break
+            case 'MAX_SESSIONS':
+                switch(error.statusCode) {
+                    case 'OVER_SESSIONS_LIMIT':
+                        newErrorTitle = 'Sessions limit reached'
+                        newErrorMessage = "Sorry, it looks like we've reached the sessions limit for today. Please try again anytime after 5 minutes past midnight Pacific Time. Thanks!"
+                        setError(prevState => ({
+                            ...prevState,
+                            errorTitle: newErrorTitle, 
+                            errorMessage: newErrorMessage
+                        }))
+                        break
+                    case 'ALMOST_OVER_SESSIONS_LIMIT': // This is not an actuall Google Maps Status Code. We defined it for our purposes.
+                        newErrorTitle = 'Sessions limit almost reached'
+                        newErrorMessage = `We are close to reaching the sessions limit for today. ${error.options ? error.options.remainingSessions : 'a few'} sessions currently remaining.`
                         break
                     default: 
                         newErrorTitle = 'Error code not handled yet'

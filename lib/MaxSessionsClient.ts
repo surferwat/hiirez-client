@@ -1,11 +1,11 @@
 import axios, { AxiosRequestConfig } from 'axios'
 
-class GeocodingUsageLimitClient {
+class MaxSessionsClient {
 
-    private async getRemainingRequests() {
-        let requests = 0
+    private async getRemainingSessions() {
+        let sessions = 0
 
-        const url = `${process.env.NEXT_PUBLIC_HOST}/api/v0/geocoding-usage`
+        const url = `${process.env.NEXT_PUBLIC_HOST}/api/v0/max-sessions`
         const req: AxiosRequestConfig = {
             method: 'get',
             url: url,
@@ -24,14 +24,14 @@ class GeocodingUsageLimitClient {
         }
         
         if (res.status == 200) {
-            requests = res.data.geocoding_usage.remaining_requests
+            sessions = res.data.max_sessions.remaining_sessions
         }
         
-        return requests
+        return sessions
     }
 
-    static async decrementRemainingRequests() {
-        const url = `${process.env.NEXT_PUBLIC_HOST}/api/v0/geocoding-usage?action=decrement`
+    static async decrementRemainingSessions() {
+        const url = `${process.env.NEXT_PUBLIC_HOST}/api/v0/max-sessions?action=decrement`
         const req: AxiosRequestConfig = {
             method: 'put',
             url: url,
@@ -50,24 +50,24 @@ class GeocodingUsageLimitClient {
         }
     }
 
-    async checkRemainingRequests() {
+    async checkRemainingSessions() {
         let isExceeded = false
         let isAlmostExceeded = false
 
-        const remainingRequests = await this.getRemainingRequests()
+        const remainingSessions = await this.getRemainingSessions()
 
-        if (remainingRequests == 0 || remainingRequests == undefined) {
+        if (remainingSessions == 0 || remainingSessions == undefined) {
             isExceeded = true 
-        } else if (remainingRequests <= 5) {
+        } else if (remainingSessions <= 5) {
             isAlmostExceeded = true
         }
 
         return {
             isExceeded: isExceeded,
             isAlmostExceeded: isAlmostExceeded,
-            remainingRequests: remainingRequests
+            remainingSessions: remainingSessions
         }
     }
 }
 
-export { GeocodingUsageLimitClient }
+export { MaxSessionsClient }

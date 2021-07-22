@@ -6,7 +6,7 @@ import { AdjacentStreetViewPanoramaLocations } from '../lib/AdjacentStreetViewPa
 import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
-import { GeocodingUsageLimitClient } from '../lib/GeocodingUsageLimitClient'
+import { MaxSessionsClient } from '../lib/MaxSessionsClient'
 
 type AdjacentPanoramaLocations = {
   panosAndPoints: {pano: string, point: google.maps.LatLng}[],
@@ -85,7 +85,7 @@ async function getMapPosition(
   }
 
   try {
-    await GeocodingUsageLimitClient.decrementRemainingRequests()
+    await MaxSessionsClient.decrementRemainingSessions()
   } catch (e) {
     console.log('e', e)
   }
