@@ -338,6 +338,7 @@ function AdjustPage() {
         fullscreenControl: false,
         mapTypeControl: false,
         streetViewControl: false,
+        rotateControl: false
       }
 
       let newMapConfigs = []
