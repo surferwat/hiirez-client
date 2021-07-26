@@ -232,7 +232,7 @@ function AdjustPositionPage() {
   const [mapCenterPoint, setMapCenterPoint] = useState<google.maps.LatLng>({lat: () => cookies.mapCenterPoint.lat, lng: () => cookies.mapCenterPoint.lng} as google.maps.LatLng) // hack because cannot store LatLng object cookie
   const activePanoramaRef = useRef<HTMLDivElement>(null)
   const [activePanoramaDetails, setActivePanoramaDetails] = useState<PanoramaConfig>(cookies.activePanoramaDetails || {pano: '', heading: 0, pitch: 0, zoom: 0})
-
+  
   useEffect(() => {
     // We count each page load as the start of a new session for the purposes
     // of managing API usage costs
@@ -279,7 +279,6 @@ function AdjustPositionPage() {
 
       addListenerToPanorama('pano_changed', streetViewPanorama.panorama, setActivePanoramaDetails)
       addListenerToPanorama('pov_changed', streetViewPanorama.panorama, setActivePanoramaDetails)
-
       // Update state
       setActivePanoramaDetails(streetViewPanorama.details)
     }
@@ -294,7 +293,7 @@ function AdjustPositionPage() {
   function handleClickNewAddressButton(): void {
     router.push({pathname: '/'})
   }
-
+  
   if (clientError.status) {
     return (
       <div className='p-3 container mx-auto max-w-md'>
