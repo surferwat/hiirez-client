@@ -298,14 +298,17 @@ function AdjustPositionPage() {
     return (
       <div className='w-full pt-12 md:w-11/12 lg:w-3/4 mx-auto'>
         {Tracker.logPageView('/tune')}
-        <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
-        <p className='pb-3'>{clientError.errorMessage}</p>
-        <button 
-          className={`${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'} w-full rounded-md py-2 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl`}
-          onClick={handleClickNewAddressButton}
-        >
-          Enter another address
-        </button>
+        <h1 className='pt-3 px-3 text-base'>{address}</h1>
+        <section className='p-3 min-h-40'>
+          <h1 className='pb-3 text-2xl text-black font-medium'>{clientError.errorTitle}</h1>
+          <p className='pb-3'>{clientError.errorMessage}</p>
+          <button 
+            className={`${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'} w-full rounded-md py-2 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl`}
+            onClick={handleClickNewAddressButton}
+          >
+            Enter another address
+          </button>
+        </section>
       </div>
     )
   } else {

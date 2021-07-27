@@ -384,7 +384,7 @@ function AdjustPage() {
     )
   } else {
     return (
-      <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
+      <div className='w-full pt-12 md:w-11/12 lg:w-3/4 mx-auto'>
         {Tracker.logPageView('/tune')}
         <h1 className='pt-3  px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
