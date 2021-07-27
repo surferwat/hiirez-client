@@ -370,7 +370,7 @@ function AdjustPage() {
 
   if (clientError.status) {
     return (
-      <div className='w-full md:w-3/4 mx-auto'>
+      <div className='w-full pt-12 md:w-3/4 mx-auto'>
         {Tracker.logPageView('/tune:error')}
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>

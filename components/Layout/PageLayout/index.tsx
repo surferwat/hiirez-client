@@ -28,7 +28,7 @@ const PageLayout = ({ children }: PageLayoutProps) => {
     return (
       <div className='flex flex-col min-h-screen'>
         <Header />
-        <div className='mt-20 min-h-screen'>
+        <div className='mt-12 min-h-screen'>
             {children}
         </div>
         <FooterContainer />
@@ -38,7 +38,7 @@ const PageLayout = ({ children }: PageLayoutProps) => {
     return (
       <div className='flex flex-col min-h-screen'>
         <Header />
-        <div className='mt-20 min-h-screen'>
+        <div className='mt-12 min-h-screen'>
             {children}
         </div>
         <FooterContainer />

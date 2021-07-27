@@ -9,16 +9,16 @@ type NavProps = {
 
 function Nav({onClickInfoButton, href}: NavProps) {
     return (
-        <nav className='w-full fixed bg-white z-40 '>
+        <nav className='w-full h-12 fixed bg-white z-40 '>
         
         <div className='flex justify-between'>
-            <div className='flex p-6 md:pl-3 lg:pl-3 xl:pl-3'>
+            <div className='flex p-2 pl-3 md:pl-3 lg:pl-3 xl:pl-3'>
                 <Link href={href} passHref>
                     <a className='flex items-center'>
                         <span className='text-3xl text-black font-bold'>hiirez</span>
                     </a>
                 </Link>
-                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.4.11</span>    
+                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.4.12</span>    
             </div>
             {/* <div className='hidden md:block'>
                 <ul className="flex space-x-2">

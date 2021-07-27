@@ -114,7 +114,7 @@ function HomePage() {
           }
         } as ClientError)
       }
-
+      
       setRemainingSessions(status.remainingSessions)
     }
     handleSessions()
@@ -200,7 +200,7 @@ function HomePage() {
         <form className="w-full max-w-md px-3 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
           <div>
             <h2 className={`${remainingSessions ? 'block' : 'hidden'} pl-2 pb-2 text-sm`}>{remainingSessions} sessions remaining for today</h2>
-            <h2 className={`${remainingSessions ? 'hidden' : 'block'} pl-2 pb-2 text-sm`}>- sessions remaining for today</h2>
+            <h2 className={`${remainingSessions ? 'hidden' : 'block'} pl-2 pb-2 text-sm`}>0 sessions remaining for today</h2>
             <div className='relative'>
               <svg width="20" height="20" fill="currentColor" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
@@ -220,7 +220,7 @@ function HomePage() {
           >
             Next
           </button>
-          <h2 className={`${clientError.status ? 'block' : 'hidden'} p-3 text-sm`}>
+          <h2 className={`${clientError.status ? 'block' : 'hidden'} p-3 pl-2 text-sm`}>
             {clientError.errorMessage}
           </h2>
         </form>
