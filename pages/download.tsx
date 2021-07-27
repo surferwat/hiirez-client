@@ -237,7 +237,7 @@ function DownloadPage() {
 
   return (
     <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
-      {Tracker.logPageView('/download-it-yo')}
+      {Tracker.logPageView('/download')}
       <h1 className='pt-3 px-3 text-base'>{address}</h1>
       <section className='p-3 min-h-40'>
         <h1 className='pb-3 text-2xl text-black font-medium'>Download your images</h1>
@@ -262,7 +262,7 @@ function DownloadPage() {
 
       <section className='p-3'>
         <button 
-          className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+          className='w-full rounded-md py-3 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl'
           onClick={handleClickNewAddressButton}
         >
           Enter another address

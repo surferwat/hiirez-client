@@ -91,6 +91,7 @@ function HomePage() {
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
   const [subscribeError, setSubscribeError] = useState<SubscribeError>({status: false, message: ''})
+  const [remainingSessions, setRemainingSessions] = useState<number>()
 
   useEffect(() => {
     async function handleSessions() {
@@ -113,6 +114,8 @@ function HomePage() {
           }
         } as ClientError)
       }
+
+      setRemainingSessions(status.remainingSessions)
     }
     handleSessions()
   }, [])
@@ -136,7 +139,7 @@ function HomePage() {
     } else {
         setCookie('mapCenterPoint', mapCenterPoint)
         setCookie('address', address)
-        router.push({pathname: '/find-perfect-position'})
+        router.push({pathname: '/position'})
     }
   }
  
@@ -191,48 +194,55 @@ function HomePage() {
   }
 
   return (
-    <div className='mx-auto max-w-4xl'>
+    <div className='mx-auto'>
       {Tracker.logPageView('/')}
-      <section className='flex h-96 max-w-md mx-auto items-center p-3'>
-        <form className="w-full px-3 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
-          <h2 className={`${clientError.status ? 'block' : 'hidden'} p-3 text-sm bg-yellow-100 rounded-md`}>
-            {clientError.errorMessage}
-          </h2>
-          <div className='relative'>
-            <svg width="20" height="20" fill="currentColor" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
-            </svg>
-            <input
-              className='shadow-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none w-full text-base text-black placeholder-gray-500 border border-gray-200 rounded-md py-3 pl-10'
-              placeholder='Enter an address'
-              id='pac-input' 
-              type='text'
-            />
+      <section className='flex h-96 mx-auto justify-center p-3 pt-24 bg-orange'>
+        <form className="w-full max-w-md px-3 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
+          <div>
+            <h2 className={`${remainingSessions ? 'block' : 'hidden'} pl-2 pb-2 text-sm`}>{remainingSessions} sessions remaining for today</h2>
+            <h2 className={`${remainingSessions ? 'hidden' : 'block'} pl-2 pb-2 text-sm`}>- sessions remaining for today</h2>
+            <div className='relative'>
+              <svg width="20" height="20" fill="currentColor" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
+              </svg>
+              <input
+                className='shadow-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none w-full text-base text-black placeholder-gray-500 border border-gray-200 rounded-md py-3 pl-10'
+                placeholder='Enter an address'
+                id='pac-input' 
+                type='text'
+              />
+            </div>
           </div>
           <button 
-            className='w-full rounded-md py-3 disabled:opacity-50 bg-gray-900 text-white text-base font-bold hover:shadow-xl z-0'
+            className='w-full rounded-md py-3 disabled:opacity-50 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl z-0'
             onClick={handleClickButton}
             disabled={mapCenterPoint == null || (clientError.status && clientError.statusCode == 'OVER_QUERY_LIMIT')}
           >
             Next
           </button>
+          <h2 className={`${clientError.status ? 'block' : 'hidden'} p-3 text-sm`}>
+            {clientError.errorMessage}
+          </h2>
         </form>
       </section>
 
-      <section className='p-3 pb-6'>
-        <div className='sm:grid sm:grid-cols-2 xl:grid xl:grid-cols-2'>
-          <div>
-            <h3 className='px-3 text-xl text-blue-600 font-medium'>Why hiirez</h3>
-            <h1 className='p-3 text-2xl text-black font-medium'>A dedicated tool for real asset professionals</h1>
+      <section className='flex p-3 py-6 justify-center'>
+        <div className='max-w-4xl'>
+          <div className='sm:grid sm:grid-cols-2 xl:grid xl:grid-cols-2'>
+            <div>
+              <h3 className='px-3 text-xl text-blue-600 font-medium'>Why hiirez</h3>
+              <h1 className='p-3 text-2xl text-black font-medium'>A dedicated tool for deal hunters</h1>
+            </div>
           </div>
+          <h2 className='p-3 text-xl text-black'>
+            Reduce the time spent searching for images of your subject property by 10x to less than a minute, especially
+            if all you need is some context at the early stages of buying, selling, or leasing property.
+          </h2>
         </div>
-        <h2 className='p-3 text-xl text-black'>
-          Reduce the time spent searching for images of your subject property by 10x to less than a minute, especially
-          if all you need is some context at the early stages of buying, selling, or leasing property.
-        </h2>
       </section>
 
-      <section className='my-5 p-3'>
+      <section className='flex p-3 py-6 justify-center'>
+        <div className='max-w-4xl'>
         <div className='sm:grid sm:grid-cols-2 xl:grid xl:grid-cols-2'>
           <div>
             <h3 className='px-3 text-xl text-blue-600 font-medium'>Designed for simplicity</h3>
@@ -243,7 +253,7 @@ function HomePage() {
         <div className='md:grid md:grid-cols-3 lg:grid lg:grid-cols-3 xl:grid xl:grid-cols-3'>
           <div className='inline-block'>
             <div className='flex items-center p-3'>
-              <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-gray-900 text-white text-2xl font-bold'>1</div>
+              <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-blue-600 text-white text-2xl font-bold'>1</div>
               <h2 className='pl-3 text-xl text-black font-bold'>Input the location</h2>
             </div>
             <p className='p-3 text-xl text-black'>
@@ -254,7 +264,7 @@ function HomePage() {
 
           <div className='inline-block'>
             <div className='flex items-center p-3'>
-              <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-gray-900 text-white text-2xl font-bold'>2</div>
+              <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-blue-600 text-white text-2xl font-bold'>2</div>
               <h2 className='pl-3 text-xl text-black font-bold'>Adjust the panorama</h2>
             </div>
             <p className='p-3 text-xl text-black'>
@@ -264,7 +274,7 @@ function HomePage() {
 
           <div className='inline-block'>
             <div className='flex items-center p-3'>
-            <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-gray-900 text-white text-2xl font-bold'>3</div>
+            <div className='rounded-full h-8 w-8 flex items-center justify-center border bg-blue-600 text-white text-2xl font-bold'>3</div>
               <h2 className='pl-3 text-xl text-black font-bold'>Download the images</h2>
             </div>
             <p className='p-3 text-xl text-black'>
@@ -272,10 +282,12 @@ function HomePage() {
             </p>
           </div>
         </div>
-              
+        </div>
       </section>
 
-      <section className='p-3 pb-6'>
+      <section className='flex p-3 py-6 justify-center'>
+        <div className='max-w-4xl'>
+        
         <h3 className='px-3 text-xl text-blue-600 font-medium'>Subscribe</h3>
         <h1 className='p-3 text-2xl text-black font-medium'>Stay in touch</h1>
         <h2 className='p-3 text-xl text-black'>
@@ -292,7 +304,7 @@ function HomePage() {
               type='text'
           />
           <button 
-              className='w-full md:w-36 lg:w-36 xl:w-36 rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+              className='w-full md:w-36 lg:w-36 xl:w-36 rounded-md py-3 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl'
               onClick={handleSubscribe}
           >
               Subscribe
@@ -302,6 +314,8 @@ function HomePage() {
           <h2 className='p-3 text-xl text-green-500'>
             You're now subscribed!
           </h2> 
+        </div>
+
         </div>
       </section>
      

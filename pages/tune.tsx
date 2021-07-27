@@ -361,7 +361,7 @@ function AdjustPage() {
     setCookie('panoramaConfigs', panoramaConfigs)
     setCookie('mapConfigs', mapConfigs)
 
-    router.push({pathname: '/download-it-yo'})
+    router.push({pathname: '/download'})
   }
 
   function handleClickNewAddressButton(): void {
@@ -371,7 +371,7 @@ function AdjustPage() {
   if (clientError.status) {
     return (
       <div className='w-full md:w-3/4 mx-auto'>
-        {Tracker.logPageView('/do-your-thang:error')}
+        {Tracker.logPageView('/tune:error')}
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>
         <button 
@@ -385,7 +385,7 @@ function AdjustPage() {
   } else {
     return (
       <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
-        {Tracker.logPageView('/do-your-thang')}
+        {Tracker.logPageView('/tune')}
         <h1 className='pt-3  px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
           <h1 className='pb-3 text-2xl text-black font-medium'>Make any adjustments and press Next</h1>
@@ -412,7 +412,7 @@ function AdjustPage() {
   
         <section className='p-3'>
           <button 
-            className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+            className='w-full rounded-md py-3 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl'
             onClick={handleClickNextButton}
           >
             Next

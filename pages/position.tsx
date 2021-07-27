@@ -287,7 +287,7 @@ function AdjustPositionPage() {
 
   function handleClickNextButton(): void {
     setCookie('activePanoramaDetails', activePanoramaDetails)
-    router.push({pathname: '/do-your-thang'})
+    router.push({pathname: '/tune'})
   }
 
   function handleClickNewAddressButton(): void {
@@ -297,11 +297,11 @@ function AdjustPositionPage() {
   if (clientError.status) {
     return (
       <div className='p-3 container mx-auto max-w-md'>
-        {Tracker.logPageView('/do-your-thang')}
+        {Tracker.logPageView('/tune')}
         <h1 className='text-2xl pb-3'>{clientError.errorTitle}</h1>
         <p className='pb-3'>{clientError.errorMessage}</p>
         <button 
-          className={`${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'} w-full rounded-md py-2 bg-gray-900 text-white text-base font-bold hover:shadow-xl`}
+          className={`${clientError.statusCode == 'ZERO_RESULTS' ? 'block' : 'hidden'} w-full rounded-md py-2 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl`}
           onClick={handleClickNewAddressButton}
         >
           Enter another address
@@ -311,7 +311,7 @@ function AdjustPositionPage() {
   } else {
     return (
       <div className='w-full md:w-11/12 lg:w-3/4 mx-auto'>
-        {Tracker.logPageView('/find-perfect-position')}
+        {Tracker.logPageView('/position')}
         <h1 className='pt-3 px-3 text-base'>{address}</h1>
         <section className='p-3 min-h-40'>
           <h1 className='pb-3 text-2xl text-black font-medium'>Find the best point of view and press Next</h1>
@@ -328,7 +328,7 @@ function AdjustPositionPage() {
   
         <section className='p-3'>
           <button 
-            className='w-full rounded-md py-3 bg-gray-900 text-white text-base font-bold hover:shadow-xl'
+            className='w-full rounded-md py-3 bg-gray-700 hover:bg-gray-900 text-white text-base font-bold hover:shadow-xl'
             onClick={handleClickNextButton}
           >
             Next
