@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
+import { GetServerSideProps } from 'next'
 import { useCookies } from 'react-cookie'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
@@ -81,8 +82,39 @@ function useHandleChange(initial: string): [string, (event: any)=> void] {
 
 
 
-function HomePage() {
-  const [clientError, setClientError] = useClientError({endpoint: '', statusCode: '', status: false})
+function checkMaxSessionsClientError(
+  isExceeded: boolean, isAlmostExceeded: boolean, remainingSessions: number
+) {
+  let maxSessions = {
+    endpoint: 'MAX_SESSIONS', 
+    statusCode: 'OK', 
+    status: false,
+    options: {
+      remainingSessions: 0
+    }
+  }
+
+  if (isExceeded) {
+    maxSessions.endpoint =  'MAX_SESSIONS', 
+    maxSessions.statusCode = 'OVER_SESSIONS_LIMIT', 
+    maxSessions.status = isExceeded,
+    maxSessions.options.remainingSessions = remainingSessions
+  } else if (isAlmostExceeded) {
+    maxSessions.endpoint = 'MAX_SESSIONS', 
+    maxSessions.statusCode = 'ALMOST_OVER_SESSIONS_LIMIT', 
+    maxSessions.status = isAlmostExceeded,
+    maxSessions.options.remainingSessions = remainingSessions
+  }
+  return maxSessions
+}
+
+
+
+
+
+
+function HomePage(props: {isExceeded: boolean, isAlmostExceeded: boolean, remainingSessions: number}) {
+  const [clientError, setClientError] = useClientError(checkMaxSessionsClientError(props.isExceeded,props.isAlmostExceeded,props.remainingSessions))
   const google = useGoogleMapsApi()
   const router = useRouter()
   const [cookies, setCookie, removeCookie] = useCookies(['address','panoramaConfigs', 'mapConfigs', 'activePanoramaDetails', 'mapCenterPoint'])
@@ -91,34 +123,7 @@ function HomePage() {
   const [email, setEmail] = useHandleChange('')
   const [subscribed, setSubscribed] = useState<Subscribed>({status: false, message: 'not subscribed'})
   const [subscribeError, setSubscribeError] = useState<SubscribeError>({status: false, message: ''})
-  const [remainingSessions, setRemainingSessions] = useState<number>()
-
-  useEffect(() => {
-    async function handleSessions() {
-      const maxSessionsClient = new MaxSessionsClient()
-      const status = await maxSessionsClient.checkRemainingSessions()
-    
-      if (status.isExceeded) {
-        setClientError({
-          endpoint: 'MAX_SESSIONS', 
-          statusCode: 'OVER_SESSIONS_LIMIT', 
-          status: status.isExceeded,
-        } as ClientError)
-      } else if (status.isAlmostExceeded) {
-        setClientError({
-          endpoint: 'MAX_SESSIONS', 
-          statusCode: 'ALMOST_OVER_SESSIONS_LIMIT', 
-          status: status.isAlmostExceeded,
-          options: {
-            remainingSessions: status.remainingSessions
-          }
-        } as ClientError)
-      }
-      
-      setRemainingSessions(status.remainingSessions)
-    }
-    handleSessions()
-  }, [])
+  const [remainingSessions, setRemainingSessions] = useState<number>(props.remainingSessions)
 
   useEffect(() => {
     if (!google) {
@@ -200,7 +205,6 @@ function HomePage() {
         <form className="w-full max-w-md px-3 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
           <div>
             <h2 className={`${remainingSessions ? 'block' : 'hidden'} pl-2 pb-2 text-sm`}>{remainingSessions} sessions remaining for today</h2>
-            <h2 className={`${remainingSessions ? 'hidden' : 'block'} pl-2 pb-2 text-sm`}>0 sessions remaining for today</h2>
             <div className='relative'>
               <svg width="20" height="20" fill="currentColor" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
@@ -324,3 +328,16 @@ function HomePage() {
 }
   
 export default HomePage
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const maxSessionsClient = new MaxSessionsClient()
+  const result = await maxSessionsClient.checkRemainingSessions()
+  
+  return {
+    props: {
+      isExceeded: result.isExceeded,
+      isAlmostExceeded: result.isAlmostExceeded,
+      remainingSessions: result.remainingSessions
+    }
+  }
+}

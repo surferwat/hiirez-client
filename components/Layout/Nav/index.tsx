@@ -18,7 +18,7 @@ function Nav({onClickInfoButton, href}: NavProps) {
                         <span className='text-3xl text-black font-bold'>hiirez</span>
                     </a>
                 </Link>
-                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.4.13</span>    
+                <span className='flex items-center pl-3 text-sm text-gray-500'>v1.4.14</span>    
             </div>
             {/* <div className='hidden md:block'>
                 <ul className="flex space-x-2">
