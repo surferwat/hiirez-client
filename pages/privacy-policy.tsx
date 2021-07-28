@@ -3,7 +3,7 @@ import { Tracker } from '../components/Tracker'
 
 export default () => {
   return (
-    <div className='mx-auto max-w-4xl'>
+    <div className='mx-auto max-w-4xl pt-12'>
       {Tracker.logPageView('/privacy-policy')}
       <h1 className='pb-3'>Privacy policy</h1>
       
