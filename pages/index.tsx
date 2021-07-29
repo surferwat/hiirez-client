@@ -211,7 +211,7 @@ function HomePage(props: {isExceeded: boolean, isAlmostExceeded: boolean, remain
               </svg>
               <input
                 className='shadow-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none w-full text-base text-black placeholder-gray-500 border border-gray-200 rounded-md py-3 pl-10'
-                placeholder='Enter an address'
+                placeholder='Enter a building address or name'
                 id='pac-input' 
                 type='text'
               />
