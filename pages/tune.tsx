@@ -6,14 +6,6 @@ import useClientError from '../hooks/useClientError'
 import useGoogleMapsApi from '../hooks/useGoogleMapsApi'
 import { Tracker } from '../components/Tracker'
 
-type ClientError = {
-  endpoint: string,
-  statusCode: string,
-  status: boolean,
-  errorTitle: string,
-  errorMessage: string
-}
-
 type PanoramaConfig = {
   pano: string,
   heading:number,
@@ -200,7 +192,6 @@ async function getAdjacentPanoramaLocations(
   panoramaPoint: google.maps.LatLng
 ): Promise<(string | null)[]> {
   let adjacentPanoramas: (string | null)[] = ['']
-
   if (mapCenterPoint == null || panoramaPoint == null) {
     return adjacentPanoramas
   }
