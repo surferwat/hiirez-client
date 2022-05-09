@@ -143,7 +143,7 @@ async function initPanorama(
   // We need to check whether panorma config is not null, in case the user 
   // navigates back to this page.
   if (panoramaConfig == null || panoramaConfig.pano == '') {
-    heading = google.maps.geometry.spherical.computeHeading(panoramaPoint, mapCenterPoint)
+    heading = google.maps.geometry.spherical.computeHeading(new google.maps.LatLng(panoramaPoint.lat(), panoramaPoint.lng()), new google.maps.LatLng(mapCenterPoint.lat(), mapCenterPoint.lng()))
     pitch = 0
     zoom = 0.8 
   } else {

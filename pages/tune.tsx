@@ -198,8 +198,8 @@ async function getAdjacentPanoramaLocations(
 
   try {
     const adjacentStreetViewPanoramaLocations = new AdjacentStreetViewPanoramaLocations(
-      mapCenterPoint,
-      panoramaPoint,
+      new google.maps.LatLng(mapCenterPoint.lat(), mapCenterPoint.lng()),
+      new google.maps.LatLng(panoramaPoint.lat(), panoramaPoint.lng())
     )
     adjacentPanoramas = await adjacentStreetViewPanoramaLocations.getLocations()
   } catch (e) {
@@ -219,7 +219,7 @@ async function getHeading(pano: string, mapCenterPoint: google.maps.LatLng) {
   const panoramaPoint = await getPanoramaPoint(pano)
   
   if (panoramaPoint != null) {
-    heading = google.maps.geometry.spherical.computeHeading(panoramaPoint, mapCenterPoint)
+    heading = google.maps.geometry.spherical.computeHeading(new google.maps.LatLng(panoramaPoint.lat(), panoramaPoint.lng()), new google.maps.LatLng(mapCenterPoint.lat(), mapCenterPoint.lng()))
   }
   return heading
 }
